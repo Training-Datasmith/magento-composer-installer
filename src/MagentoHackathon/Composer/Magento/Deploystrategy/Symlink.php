@@ -118,10 +118,8 @@ class Symlink extends DeploystrategyAbstract
      *
      * @param string $from
      * @param string $to
-     *
-     * @return string
      */
-    public function getRelativePath($from, $to)
+    public function getRelativePath($from, $to): string
     {
         $from = str_replace(['/./', '//', '\\'], '/', $from);
         $to = str_replace(['/./', '//', '\\'], '/', $to);

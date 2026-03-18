@@ -13,12 +13,12 @@ class ModmanParser extends PathTranslationParser
     /**
      * @var string Path to vendor module dir
      */
-    protected $_moduleDir = null;
+    protected $_moduleDir;
 
     /**
      * @var \SplFileObject The modman file
      */
-    protected $_file = null;
+    protected $_file;
 
     /**
      * Constructor
@@ -37,9 +37,8 @@ class ModmanParser extends PathTranslationParser
      * Sets the module directory where to search for the modman file
      *
      * @param string $moduleDir
-     * @return ModmanParser
      */
-    public function setModuleDir($moduleDir)
+    public function setModuleDir($moduleDir): static
     {
         // Remove trailing slash
         if ($moduleDir !== null) {
@@ -60,9 +59,8 @@ class ModmanParser extends PathTranslationParser
 
     /**
      * @param string|SplFileObject $file
-     * @return ModmanParser
      */
-    public function setFile($file)
+    public function setFile($file): static
     {
         if (is_string($file)) {
             $file = new \SplFileObject($file);
@@ -82,13 +80,12 @@ class ModmanParser extends PathTranslationParser
     /**
      * @return string
      */
-    public function getModmanFile()
+    public function getModmanFile(): ?\SplFileObject
     {
-        $file = null;
         if ($this->_moduleDir !== null) {
-            $file = new \SplFileObject($this->_moduleDir . '/modman');
+            return new \SplFileObject($this->_moduleDir . '/modman');
         }
-        return $file;
+        return null;
     }
 
     /**
@@ -104,15 +101,13 @@ class ModmanParser extends PathTranslationParser
         }
 
         $map = $this->_parseMappings();
-        $map = $this->translatePathMappings($map);
-        return $map;
+        return $this->translatePathMappings($map);
     }
 
     /**
      * @throws \ErrorException
-     * @return array
      */
-    protected function _parseMappings()
+    protected function _parseMappings(): array
     {
         $map = [];
         $line = 0;
@@ -120,7 +115,10 @@ class ModmanParser extends PathTranslationParser
         foreach ($this->_file as $row) {
             $line++;
             $row = trim($row);
-            if ('' === $row || in_array($row[0], ['#', '@'])) {
+            if ('' === $row) {
+                continue;
+            }
+            if (in_array($row[0], ['#', '@'])) {
                 continue;
             }
             $parts = preg_split('/\s+/', $row, 2, PREG_SPLIT_NO_EMPTY);

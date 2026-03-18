@@ -13,12 +13,12 @@ class PackageXmlParser extends PathTranslationParser
     /**
      * @var string Path to vendor module dir
      */
-    protected $_moduleDir = null;
+    protected $_moduleDir;
 
     /**
      * @var \SplFileObject The package.xml file
      */
-    protected $_file = null;
+    protected $_file;
 
     /**
      * @var array Map of package content types to path prefixes
@@ -44,9 +44,8 @@ class PackageXmlParser extends PathTranslationParser
      * Sets the module directory where to search for the package.xml file
      *
      * @param string $moduleDir
-     * @return PackageXmlParser
      */
-    public function setModuleDir($moduleDir)
+    public function setModuleDir($moduleDir): static
     {
         // Remove trailing slash
         if ($moduleDir !== null) {
@@ -67,9 +66,8 @@ class PackageXmlParser extends PathTranslationParser
 
     /**
      * @param string|SplFileObject $file
-     * @return PackageXmlParser
      */
-    public function setFile($file)
+    public function setFile($file): static
     {
         if (is_string($file)) {
             $file = new \SplFileObject($file);
@@ -99,37 +97,24 @@ class PackageXmlParser extends PathTranslationParser
         }
 
         $map = $this->_parseMappings();
-        $map = $this->translatePathMappings($map);
-        return $map;
+        return $this->translatePathMappings($map);
     }
 
     /**
      * @throws \ErrorException
-     * @return array
      */
-    protected function _parseMappings()
+    protected function _parseMappings(): array
     {
         $map = [];
 
         /** @var $package SimpleXMLElement */
         $package = simplexml_load_file($this->getFile()->getPathname());
-        if (isset($package)) {
-            foreach ($package->xpath('//contents/target') as $target) {
-                try {
-                    $basePath = $this->getTargetPath($target);
-
-                    foreach ($target->children() as $child) {
-                        foreach ($this->getElementPaths($child) as $elementPath) {
-                            $relativePath = $basePath . '/' . $elementPath;
-                            $map[] = [$relativePath, $relativePath];
-                        }
-                    }
-
-                }
-                catch (RuntimeException $e) {
-                    // Skip invalid targets
-                    throw $e;
-                    continue;
+        foreach ($package->xpath('//contents/target') as $target) {
+            $basePath = $this->getTargetPath($target);
+            foreach ($target->children() as $child) {
+                foreach ($this->getElementPaths($child) as $elementPath) {
+                    $relativePath = $basePath . '/' . $elementPath;
+                    $map[] = [$relativePath, $relativePath];
                 }
             }
         }
@@ -137,7 +122,6 @@ class PackageXmlParser extends PathTranslationParser
     }
 
     /**
-     * @param \SimpleXMLElement $target
      * @return string
      * @throws RuntimeException
      */
@@ -168,11 +152,9 @@ class PackageXmlParser extends PathTranslationParser
     }
 
     /**
-     * @param \SimpleXMLElement $element
-     * @return array
      * @throws RuntimeException
      */
-    protected function getElementPaths(\SimpleXMLElement $element) {
+    protected function getElementPaths(\SimpleXMLElement $element): array {
         $type = $element->getName();
         $name = $element->attributes()->name;
         $elementPaths = [];
@@ -202,7 +184,6 @@ class PackageXmlParser extends PathTranslationParser
     }
 
     /**
-     * @param \SimpleXMLElement $element
      * @return SimpleXMLElement
      */
     protected function getFirstChild(\SimpleXMLElement$element)

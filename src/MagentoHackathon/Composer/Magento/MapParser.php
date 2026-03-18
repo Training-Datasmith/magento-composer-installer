@@ -16,7 +16,7 @@ class MapParser extends PathTranslationParser {
         $this->setMappings($mappings);
     }
 
-    public function setMappings($mappings)
+    public function setMappings($mappings): void
     {
         $this->_mappings = $this->translatePathMappings($mappings);
     }

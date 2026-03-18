@@ -20,15 +20,15 @@ class Copy extends DeploystrategyAbstract
      */
     public function createDelegate($source, $dest)
     {
-        list($mapSource, $mapDest) = $this->getCurrentMapping();
+        [$mapSource, $mapDest] = $this->getCurrentMapping();
         $mapSource = $this->removeTrailingSlash($mapSource);
         $mapDest = $this->removeTrailingSlash($mapDest);
         $cleanDest = $this->removeTrailingSlash($dest);
 
         $sourcePath = $this->getSourceDir() . DIRECTORY_SEPARATOR
-            . ltrim($this->removeTrailingSlash($source), DIRECTORY_SEPARATOR);
+            . ltrim((string) $this->removeTrailingSlash($source), DIRECTORY_SEPARATOR);
         $destPath = $this->getDestDir() . DIRECTORY_SEPARATOR
-            . ltrim($this->removeTrailingSlash($dest), DIRECTORY_SEPARATOR);
+            . ltrim((string) $this->removeTrailingSlash($dest), DIRECTORY_SEPARATOR);
 
 
         // Create all directories up to one below the target if they don't exist
@@ -52,28 +52,30 @@ class Copy extends DeploystrategyAbstract
         }
 
         if (file_exists($destPath) && is_dir($destPath)) {
-            $mapSource = rtrim($mapSource, '*');
+            $mapSource = rtrim((string) $mapSource, '*');
             $mapSourceLen = empty($mapSource) ? 0 : strlen($mapSource);
             if (
                 strcmp(
-                    substr(ltrim($cleanDest, DIRECTORY_SEPARATOR), strlen($mapDest)),
+                    substr(ltrim((string) $cleanDest, DIRECTORY_SEPARATOR), strlen((string) $mapDest)),
                     substr(ltrim($source, DIRECTORY_SEPARATOR), $mapSourceLen)
                 ) === 0
             ) {
                 // copy each child of $sourcePath into $destPath
                 foreach (new \DirectoryIterator($sourcePath) as $item) {
                     $item = (string) $item;
-                    if (!strcmp($item, '.') || !strcmp($item, '..')) {
+                    if (!strcmp($item, '.')) {
+                        continue;
+                    }
+                    if (!strcmp($item, '..')) {
                         continue;
                     }
                     $childSource = $this->removeTrailingSlash($source) . DIRECTORY_SEPARATOR . $item;
                     $this->create($childSource, substr($destPath, strlen($this->getDestDir()) + 1));
                 }
                 return true;
-            } else {
-                $destPath = $this->removeTrailingSlash($destPath) . DIRECTORY_SEPARATOR . basename($source);
-                return $this->create($source, substr($destPath, strlen($this->getDestDir()) + 1));
             }
+            $destPath = $this->removeTrailingSlash($destPath) . DIRECTORY_SEPARATOR . basename($source);
+            return $this->create($source, substr($destPath, strlen($this->getDestDir()) + 1));
         }
 
         // From now on $destPath can't be a directory, that case is already handled

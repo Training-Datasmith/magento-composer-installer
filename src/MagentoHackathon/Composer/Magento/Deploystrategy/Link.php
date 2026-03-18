@@ -37,17 +37,19 @@ class Link extends DeploystrategyAbstract
                 // copy/link each child of $sourcePath into $destPath
                 foreach (new \DirectoryIterator($sourcePath) as $item) {
                     $item = (string) $item;
-                    if (!strcmp($item, '.') || !strcmp($item, '..')) {
+                    if (!strcmp($item, '.')) {
+                        continue;
+                    }
+                    if (!strcmp($item, '..')) {
                         continue;
                     }
                     $childSource = $source . '/' . $item;
                     $this->create($childSource, substr($destPath, strlen($this->getDestDir())+1));
                 }
                 return true;
-            } else {
-                $destPath .= '/' . basename($source);
-                return $this->create($source, substr($destPath, strlen($this->getDestDir())+1));
             }
+            $destPath .= '/' . basename($source);
+            return $this->create($source, substr($destPath, strlen($this->getDestDir())+1));
         }
 
         // From now on $destPath can't be a directory, that case is already handled

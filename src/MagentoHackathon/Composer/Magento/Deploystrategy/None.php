@@ -15,9 +15,8 @@ class None extends DeploystrategyAbstract
      *
      * @param string $source
      * @param string $dest
-     * @return bool
      */
-    public function createDelegate($source, $dest)
+    public function createDelegate($source, $dest): bool
     {
         return true;
     }
@@ -27,10 +26,8 @@ class None extends DeploystrategyAbstract
      *
      * @param string $source
      * @param string $dest
-     *
-     * @return bool
      */
-    public function create($source, $dest)
+    public function create($source, $dest): bool
     {
         return true;
     }

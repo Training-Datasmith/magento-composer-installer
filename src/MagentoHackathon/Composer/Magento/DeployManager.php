@@ -37,10 +37,8 @@ class DeployManager
      *
      * An array of packages that must have high priority for deployment
      * For packages that need to be deployed before all other packages
-     *
-     * @var array
      */
-    private $highPriority = [
+    private array $highPriority = [
         'magento/magento2-base' => 10
     ];
 
@@ -49,12 +47,12 @@ class DeployManager
         $this->io = $io;
     }
 
-    public function addPackage(Entry $package)
+    public function addPackage(Entry $package): void
     {
         $this->packages[] = $package;
     }
 
-    public function setSortPriority($priorities)
+    public function setSortPriority($priorities): void
     {
         $this->sortPriority = $priorities;
     }
@@ -71,20 +69,17 @@ class DeployManager
     {
         usort(
             $this->packages,
-            function ($a, $b) {
+            function (\MagentoHackathon\Composer\Magento\Deploy\Manager\Entry $a, \MagentoHackathon\Composer\Magento\Deploy\Manager\Entry $b): int {
                 $aPriority = $this->getPackagePriority($a);
                 $bPriority = $this->getPackagePriority($b);
-                if ($aPriority == $bPriority) {
-                    return 0;
-                }
-                return ($aPriority > $bPriority) ? -1 : 1;
+                return $bPriority <=> $aPriority;
             }
         );
 
         return $this->packages;
     }
 
-    public function doDeploy()
+    public function doDeploy(): void
     {
         $this->sortPackages();
 
@@ -106,7 +101,6 @@ class DeployManager
     /**
      * Determine the priority in which the package should be deployed
      *
-     * @param Entry $package
      * @return int
      */
     private function getPackagePriority(Entry $package)

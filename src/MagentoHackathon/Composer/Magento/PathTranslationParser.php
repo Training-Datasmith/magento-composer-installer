@@ -20,17 +20,14 @@ abstract class PathTranslationParser implements Parser
      */
     protected $pathPrefixTranslations = [];
 
-    protected $pathSuffix;
-
     /**
      * Constructor. Sets the list of path translations to use.
      *
      * @param array $translations Path translations
      */
-    public function __construct($translations, $pathSuffix)
+    public function __construct($translations, protected $pathSuffix)
     {
         $this->pathPrefixTranslations = $this->createPrefixVariants($translations);
-        $this->pathSuffix = $pathSuffix;
     }
 
     /**
@@ -71,9 +68,9 @@ abstract class PathTranslationParser implements Parser
         // the source and second is the target
         foreach($mappings as &$mapping) {
             foreach($this->pathPrefixTranslations as $prefix => $translate) {
-                if(strpos($mapping[1], $prefix) === 0) {
+                if(str_starts_with((string) $mapping[1], (string) $prefix)) {
                     // replace the old prefix with the translated version
-                    $mapping[1] = $translate . substr($mapping[1], strlen($prefix));
+                    $mapping[1] = $translate . substr((string) $mapping[1], strlen((string) $prefix));
                     // should never need to translate a prefix more than once
                     // per path mapping
                     break;

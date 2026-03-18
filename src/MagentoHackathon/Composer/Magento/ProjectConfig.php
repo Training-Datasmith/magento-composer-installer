@@ -14,7 +14,7 @@ class ProjectConfig {
     protected $libraryPath;
     protected $libraryPackages;
     
-    public function __construct( $extra )
+    public function __construct( array $extra )
     {
         $this->applyDeprecatedRootConfigs( $extra );
         if( isset($extra['magento-project']) ){
@@ -22,13 +22,9 @@ class ProjectConfig {
         }
     }
     
-    protected function fetchVarFromConfigArray($array, $key, $default = null)
+    protected function fetchVarFromConfigArray(array $array, $key, $default = null)
     {
-        $result = $default;
-        if( isset($array[$key]) ){
-            $result = $array[$key];
-        }
-        return $result;
+        return $array[$key] ?? $default;
     }
     
     protected function applyDeprecatedRootConfigs( $rootConfig )

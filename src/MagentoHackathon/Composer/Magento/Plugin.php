@@ -50,25 +50,16 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     protected $composer;
 
-    /**
-     * @var Installer
-     */
-    private $installer;
+    private ?\MagentoHackathon\Composer\Magento\Installer $installer = null;
 
     /**
      * @var Filesystem
      */
     protected $filesystem;
 
-    /**
-     * @var string
-     */
-    private $regenerate = '/.regenerate';
+    private string $regenerate = '/.regenerate';
 
-    /**
-     * @var string
-     */
-    private $varFolder = '/var';
+    private string $varFolder = '/var';
 
     protected function initDeployManager(Composer $composer, IOInterface $io)
     {
@@ -81,7 +72,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     }
 
 
-    public function activate(Composer $composer, IOInterface $io)
+    public function activate(Composer $composer, IOInterface $io): void
     {
         $this->io = $io;
         $this->composer = $composer;
@@ -97,7 +88,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $composer->getInstallationManager()->addInstaller($this->installer);
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             PluginEvents::COMMAND => [
@@ -115,11 +106,11 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         ];
     }
 
-    public function onPackageUnistall(\Composer\Installer\PackageEvent $event)
+    public function onPackageUnistall(\Composer\Installer\PackageEvent $event): void
     {
         $ds = DIRECTORY_SEPARATOR;
         $package = $event->getOperation()->getPackage();
-        list($vendor, $packageName) = explode('/', $package->getPrettyName());
+        [$vendor, $packageName] = explode('/', (string) $package->getPrettyName());
         $packageName = trim(str_replace('module-', '', $packageName));
         $packageInstallationPath = $packageInstallationPath = $this->installer->getTargetDir();
         $packagePath = ucfirst($vendor) . $ds . str_replace(' ', '', ucwords(str_replace('-', ' ', $packageName)));
@@ -137,9 +128,9 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      *
      * @param \Composer\Plugin\CommandEvent $event
      */
-    public function onCommandEvent(\Composer\Plugin\CommandEvent $event)
+    public function onCommandEvent(\Composer\Plugin\CommandEvent $event): void
     {
-        $command = $event->getCommandName();
+        $event->getCommandName();
     }
 
     /**
@@ -147,7 +138,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      *
      * @param \Composer\Script\Event $event
      */
-    public function onNewCodeEvent(\Composer\Script\Event $event)
+    public function onNewCodeEvent(\Composer\Script\Event $event): void
     {
         if ($this->io->isDebug()) {
             $this->io->write('start magento deploy via deployManager');
@@ -162,30 +153,31 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
     /**
      * Set permissions for files using extra->chmod from composer.json
-     *
-     * @return void
      */
-    private function setFilePermissions()
+    private function setFilePermissions(): void
     {
         $packages = $this->composer->getRepositoryManager()->getLocalRepository()->getPackages();
         $message = 'Check "chmod" section in composer.json of %s package.';
 
         foreach ($packages as $package) {
             $extra = $package->getExtra();
-            if (!isset($extra['chmod']) || !is_array($extra['chmod'])) {
+            if (!isset($extra['chmod'])) {
+                continue;
+            }
+            if (!is_array($extra['chmod'])) {
                 continue;
             }
 
             $error = false;
             foreach ($extra['chmod'] as $chmod) {
-                if (!isset($chmod['mask']) || !isset($chmod['path']) || strpos($chmod['path'], '..') !== false) {
+                if (!isset($chmod['mask']) || !isset($chmod['path']) || str_contains((string) $chmod['path'], '..')) {
                     $error = true;
                     continue;
                 }
 
                 $file = $this->installer->getTargetDir() . '/' . $chmod['path'];
                 if (file_exists($file)) {
-                    chmod($file, octdec($chmod['mask']));
+                    chmod($file, octdec((string) $chmod['mask']));
                 } else {
                     $this->io->writeError([
                         'File doesn\'t exist: ' . $chmod['path'],
@@ -217,7 +209,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         }
 
 
-        $vendorDir = rtrim($this->composer->getConfig()->get('vendor-dir'), '/');
+        $vendorDir = rtrim((string) $this->composer->getConfig()->get('vendor-dir'), '/');
 
         $filesystem = $this->filesystem;
         $filesystem->removeDirectory($libraryPath);
@@ -245,8 +237,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
         }
 
-        $autoloadGenerator = new AutoloadGenerator(new EventDispatcher($this->composer, $this->io));
-        $classmap = ClassMapGenerator::createMap($libraryPath);
+        new AutoloadGenerator(new EventDispatcher($this->composer, $this->io));
+        ClassMapGenerator::createMap($libraryPath);
         $executable = $this->composer->getConfig()->get('bin-dir') . '/phpab';
         if (!file_exists($executable)) {
             $executable = $this->composer->getConfig()->get('vendor-dir') . '/theseer/autoload/composer/bin/phpab';
@@ -278,9 +270,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      * copied from \Composer\Util\Filesystem::copyThenRemove and removed the remove part
      *
      * @param string $source
-     * @param string $target
      */
-    protected function copyRecursive($source, $target)
+    protected function copyRecursive($source, string $target)
     {
         $it = new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS);
         $ri = new RecursiveIteratorIterator($it, RecursiveIteratorIterator::SELF_FIRST);
@@ -303,7 +294,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      * @param \Composer\Composer $composer
      * @throws \UnexpectedValueException
      */
-    private function saveVendorDirPath(Composer $composer)
+    private function saveVendorDirPath(Composer $composer): void
     {
         $magentoDir = $this->installer->getTargetDir();
         $vendorDirPath = $this->filesystem->findShortestPath(
@@ -325,10 +316,8 @@ AUTOLOAD;
 
     /**
      * Force regeneration of var/di, var/cache, var/generation on next object manager invocation
-     *
-     * @return void
      */
-    private function requestRegeneration()
+    private function requestRegeneration(): void
     {
         if (is_writable($this->installer->getTargetDir() . $this->varFolder)) {
             $filename = $this->installer->getTargetDir() . $this->varFolder . $this->regenerate;

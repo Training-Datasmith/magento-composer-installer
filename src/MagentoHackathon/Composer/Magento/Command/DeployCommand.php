@@ -43,7 +43,7 @@ EOT
         $composer = $this->getComposer();
         $installedRepo = $composer->getRepositoryManager()->getLocalRepository();
 
-        $dm = $composer->getDownloadManager();
+        $composer->getDownloadManager();
         $im = $composer->getInstallationManager();
 
         /**
@@ -79,7 +79,7 @@ EOT
 
             $strategy = $moduleInstaller->getDeployStrategy($package);
             if ($input->getOption('verbose')) {
-                $output->writeln("used " . get_class($strategy) . " as deploy strategy");
+                $output->writeln("used " . $strategy::class . " as deploy strategy");
             }
             $strategy->setMappings($moduleInstaller->getParser($package)->getMappings());
 
@@ -91,7 +91,5 @@ EOT
         }
 
         $deployManager->doDeploy();
-
-        return;
     }
 }

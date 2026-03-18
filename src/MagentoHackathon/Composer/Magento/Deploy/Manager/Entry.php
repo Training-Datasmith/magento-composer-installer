@@ -21,7 +21,7 @@ class Entry {
     /**
      * @param mixed $packageName
      */
-    public function setPackageName($packageName)
+    public function setPackageName($packageName): void
     {
         $this->packageName = $packageName;
     }
@@ -37,7 +37,7 @@ class Entry {
     /**
      * @param \MagentoHackathon\Composer\Magento\Deploystrategy\DeploystrategyAbstract $deployStrategy
      */
-    public function setDeployStrategy($deployStrategy)
+    public function setDeployStrategy($deployStrategy): void
     {
         $this->deployStrategy = $deployStrategy;
     }

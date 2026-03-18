@@ -33,21 +33,6 @@ abstract class DeploystrategyAbstract
      */
     protected $ignoredMappings = [];
 
-
-    /**
-     * The magento installation's base directory
-     *
-     * @var string
-     */
-    protected $destDir;
-
-    /**
-     * The module's base directory
-     *
-     * @var string
-     */
-    protected $sourceDir;
-
     /**
      * If set overrides existing files
      *
@@ -61,10 +46,17 @@ abstract class DeploystrategyAbstract
      * @param string $sourceDir
      * @param string $destDir
      */
-    public function __construct($sourceDir, $destDir)
+    public function __construct(
+        /**
+         * The module's base directory
+         */
+        protected $sourceDir,
+        /**
+         * The magento installation's base directory
+         */
+        protected $destDir
+    )
     {
-        $this->destDir = $destDir;
-        $this->sourceDir = $sourceDir;
     }
 
     /**
@@ -75,7 +67,7 @@ abstract class DeploystrategyAbstract
     public function deploy()
     {
         foreach ($this->getMappings() as $data) {
-            list ($source, $dest) = $data;
+            [$source, $dest] = $data;
             $this->setCurrentMapping($data);
             $this->create($source, $dest);
         }
@@ -90,9 +82,9 @@ abstract class DeploystrategyAbstract
     public function clean()
     {
         foreach ($this->getMappings() as $data) {
-            list ($source, $dest) = $data;
+            [$source, $dest] = $data;
             $this->remove($source, $dest);
-            $this->rmEmptyDirsRecursive(dirname($dest), $this->getDestDir());
+            $this->rmEmptyDirsRecursive(dirname((string) $dest), $this->getDestDir());
         }
         return $this;
     }
@@ -132,7 +124,7 @@ abstract class DeploystrategyAbstract
      *
      * @param bool $forced
      */
-    public function setIsForced($forced = true)
+    public function setIsForced($forced = true): void
     {
         $this->isForced = (bool) $forced;
     }
@@ -149,10 +141,8 @@ abstract class DeploystrategyAbstract
 
     /**
      * Sets path mappings to map project's directories to magento's directory structure
-     *
-     * @param array $mappings
      */
-    public function setMappings(array $mappings)
+    public function setMappings(array $mappings): void
     {
         $this->mappings = $mappings;
     }
@@ -172,7 +162,7 @@ abstract class DeploystrategyAbstract
      *
      * @param array $mapping
      */
-    public function setCurrentMapping($mapping)
+    public function setCurrentMapping($mapping): void
     {
         $this->currentMapping = $mapping;
     }
@@ -183,7 +173,7 @@ abstract class DeploystrategyAbstract
      * 
      * @param $ignoredMappings
      */
-    public function setIgnoredMappings($ignoredMappings)
+    public function setIgnoredMappings($ignoredMappings): void
     {
         $this->ignoredMappings = $ignoredMappings;
     }
@@ -210,7 +200,7 @@ abstract class DeploystrategyAbstract
         $destination = str_replace('/./','/', $destination);
         $destination = str_replace('//','/', $destination);
         foreach($this->ignoredMappings as $ignored){
-            if( 0 === strpos($ignored,$destination) ){
+            if( str_starts_with((string) $ignored, $destination) ){
                 return true;
             }
         }
@@ -220,14 +210,14 @@ abstract class DeploystrategyAbstract
     /**
      * Add a key value pair to mapping
      */
-    public function addMapping($key, $value)
+    public function addMapping($key, $value): void
     {
         $this->mappings[] = [$key, $value];
     }
 
     protected function removeTrailingSlash($path)
     {
-       return rtrim($path, ' \\/');
+       return rtrim((string) $path, ' \\/');
     }
 
     /**
@@ -236,18 +226,17 @@ abstract class DeploystrategyAbstract
      * Delegate the creation of the module's files in the given destination.
      *
      * @param string $source
-     * @param string $dest
      * @throws \ErrorException
      * @return bool
      */
-    public function create($source, $dest)
+    public function create($source, string $dest)
     {
         if($this->isDestinationIgnored($dest)){
             return;
         }
         
         $sourcePath = $this->getSourceDir() . DIRECTORY_SEPARATOR
-            . ltrim($this->removeTrailingSlash($source), DIRECTORY_SEPARATOR);
+            . ltrim((string) $this->removeTrailingSlash($source), DIRECTORY_SEPARATOR);
         $destPath = $this->getDestDir() . DIRECTORY_SEPARATOR . $dest;
 
         /* List of possible cases, keep around for now, might come in handy again
@@ -289,7 +278,7 @@ abstract class DeploystrategyAbstract
                 foreach ($matches as $match) {
                     $newDest = substr($destPath . '/' . basename($match), strlen($this->getDestDir()));
                     $newDest = ltrim($newDest, ' \\/');
-                    $this->create(substr($match, strlen($this->getSourceDir()) + 1), $newDest);
+                    $this->create(substr($match, strlen((string) $this->getSourceDir()) + 1), $newDest);
                 }
                 return true;
             }
@@ -304,10 +293,9 @@ abstract class DeploystrategyAbstract
      * Remove (unlink) the destination file
      *
      * @param string $source
-     * @param string $dest
      * @throws \ErrorException
      */
-    public function remove($source, $dest)
+    public function remove($source, string $dest): void
     {
         if ($this->isDestinationIgnored($dest)){
             return;
@@ -315,12 +303,14 @@ abstract class DeploystrategyAbstract
 
         $sourcePath = $this->getSourceDir() . '/' . $this->removeTrailingSlash($source);
         $destPath = $this->getDestDir() . '/' . $dest;
-
         // If source doesn't exist, check if it's a glob expression, otherwise we have nothing we can do
         if (!file_exists($sourcePath)) {
             $this->removeContentOfCategory($sourcePath, $destPath);
             return;
-        } elseif (file_exists($sourcePath) && is_dir($sourcePath)) {
+        }
+
+        // If source doesn't exist, check if it's a glob expression, otherwise we have nothing we can do
+        if (is_dir($sourcePath)) {
             $this->removeContentOfCategory($sourcePath . '/*', $destPath);
             @rmdir($destPath);
             return;
@@ -338,10 +328,9 @@ abstract class DeploystrategyAbstract
      * Search and remove content of category
      *
      * @param string $sourcePath
-     * @param string $destPath
      * @throws \ErrorException
      */
-    protected function removeContentOfCategory($sourcePath, $destPath)
+    protected function removeContentOfCategory($sourcePath, string $destPath)
     {
         $sourcePath = preg_replace('#/\*$#', '/{,.}*', $sourcePath);
         $matches = Glob::glob($sourcePath, Glob::GLOB_BRACE);
@@ -352,7 +341,7 @@ abstract class DeploystrategyAbstract
                 }
                 $newDest = substr($destPath . '/' . basename($match), strlen($this->getDestDir()));
                 $newDest = ltrim($newDest, ' \\/');
-                $this->remove(substr($match, strlen($this->getSourceDir())+1), $newDest);
+                $this->remove(substr($match, strlen((string) $this->getSourceDir())+1), $newDest);
             }
             return;
         }
@@ -364,10 +353,9 @@ abstract class DeploystrategyAbstract
     /**
      * Remove an empty directory branch up to $stopDir, or stop at the first non-empty parent.
      *
-     * @param string $dir
      * @param string $stopDir
      */
-    public function rmEmptyDirsRecursive($dir, $stopDir = null)
+    public function rmEmptyDirsRecursive(string $dir, $stopDir = null): void
     {
         $absoluteDir = $this->getDestDir() . '/' . $dir;
         if (is_dir($absoluteDir)) {
@@ -376,7 +364,10 @@ abstract class DeploystrategyAbstract
 
             foreach ($iterator as $item) {
                 $path = (string) $item;
-                if (!strcmp($path, '.') || !strcmp($path, '..')) {
+                if (!strcmp($path, '.')) {
+                    continue;
+                }
+                if (!strcmp($path, '..')) {
                     continue;
                 }
                 // The directory contains something, do not remove
@@ -405,7 +396,7 @@ abstract class DeploystrategyAbstract
      *
      * @param $dir
      */
-    public static function rmdirRecursive($dir)
+    public static function rmdirRecursive($dir): void
     {
         $fs = new \Composer\Util\Filesystem();
         if(is_dir($dir)){
@@ -413,8 +404,6 @@ abstract class DeploystrategyAbstract
         }else{
             @unlink($dir);
         }
-        
-        return;
     }
 
 
