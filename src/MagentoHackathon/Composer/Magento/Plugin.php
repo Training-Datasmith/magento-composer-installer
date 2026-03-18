@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  *
  *
@@ -10,40 +12,36 @@ namespace MagentoHackathon\Composer\Magento;
 
 use Composer\Autoload\AutoloadGenerator;
 use Composer\Autoload\ClassMapGenerator;
-use Composer\EventDispatcher\EventDispatcher;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
 use Composer\Composer;
+use Composer\EventDispatcher\EventDispatcher;
+use Composer\EventDispatcher\EventSubscriberInterface;
+use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
-use Composer\Plugin\PluginInterface;
 use Composer\Plugin\PluginEvents;
-use Composer\EventDispatcher\EventSubscriberInterface;
+use Composer\Plugin\PluginInterface;
 use Composer\Script\ScriptEvents;
-use Composer\Installer\PackageEvents;
 use Composer\Util\Filesystem;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use Symfony\Component\Process\Process;
 
 class Plugin implements PluginInterface, EventSubscriberInterface
 {
-
     /**
      * @var IOInterface
      */
     protected $io;
-
 
     /**
      * @var ProjectConfig
      */
     protected $config;
 
-
     /**
      * @var DeployManager
      */
     protected $deployManager;
-
 
     /**
      * @var Composer
@@ -70,7 +68,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $this->deployManager->setSortPriority($sortPriority);
 
     }
-
 
     public function activate(Composer $composer, IOInterface $io): void
     {
@@ -102,7 +99,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             ],
             PackageEvents::POST_PACKAGE_UNINSTALL => [
                 ['onPackageUnistall', 0],
-            ]
+            ],
         ];
     }
 
@@ -181,7 +178,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 } else {
                     $this->io->writeError([
                         'File doesn\'t exist: ' . $chmod['path'],
-                        sprintf($message, $package->getName())
+                        sprintf($message, $package->getName()),
                     ]);
                 }
             }
@@ -189,7 +186,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             if ($error) {
                 $this->io->writeError([
                     'Incorrect mask or file path.',
-                    sprintf($message, $package->getName())
+                    sprintf($message, $package->getName()),
                 ]);
             }
         }
@@ -208,7 +205,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             return;
         }
 
-
         $vendorDir = rtrim((string) $this->composer->getConfig()->get('vendor-dir'), '/');
 
         $filesystem = $this->filesystem;
@@ -225,7 +221,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 $packageConfig['autoload'] = ['/'];
             }
             foreach ($packageConfig['autoload'] as $path) {
-                $autoloadDirectories[] = $libraryPath . '/' . $package->getName() . "/" . $path;
+                $autoloadDirectories[] = $libraryPath . '/' . $package->getName() . '/' . $path;
             }
             if ($this->io->isDebug()) {
                 $this->io->write('Magento deployLibraries executed for ' . $package->getName());
@@ -257,9 +253,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             }
         }
 
-
     }
-
 
     /**
      * Copy then delete is a non-atomic version of {@link rename}.

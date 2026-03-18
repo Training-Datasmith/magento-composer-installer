@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace MagentoHackathon\Composer\Magento\Deploystrategy;
 
 class LinkTest extends AbstractTest
@@ -19,7 +22,9 @@ class LinkTest extends AbstractTest
      */
     public function getTestDeployStrategyFiletype($isDir = false)
     {
-        if ($isDir) return self::TEST_FILETYPE_DIR;
+        if ($isDir) {
+            return self::TEST_FILETYPE_DIR;
+        }
 
         return self::TEST_FILETYPE_FILE;
     }

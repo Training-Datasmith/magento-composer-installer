@@ -1,8 +1,10 @@
 <?php
+
+declare(strict_types=1);
+
 namespace MagentoHackathon\Composer\Magento\Deploystrategy;
 
 use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamWrapper;
 
 if (!defined('DS')) {
     define('DS', DIRECTORY_SEPARATOR);
@@ -10,7 +12,7 @@ if (!defined('DS')) {
 
 class NoneTest extends \PHPUnit\Framework\TestCase
 {
-    const URL_VFS_ROOT = 'vfsroot';
+    public const URL_VFS_ROOT = 'vfsroot';
 
     protected function _getVfsUrl($input)
     {

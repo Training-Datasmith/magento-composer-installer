@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace MagentoHackathon\Composer\Magento\Deploystrategy;
 
 class SymlinkTest extends AbstractTest
@@ -61,7 +64,7 @@ class SymlinkTest extends AbstractTest
         $this->mkdir($this->sourceDir . DS . $globSource);
         touch($this->sourceDir . DS . $sourceContents);
 
-        $dest = "targetdir"; // this dir should contain the target child dir
+        $dest = 'targetdir'; // this dir should contain the target child dir
         $this->mkdir($this->destDir . DS . $dest);
         $this->mkdir($this->destDir . DS . $dest . DS . basename($globSource));
 
@@ -69,7 +72,7 @@ class SymlinkTest extends AbstractTest
 
         $this->strategy->setIsForced(false);
         $this->expectException('ErrorException');
-        $this->expectExceptionMessage("Target targetdir/childdir already exists");
+        $this->expectExceptionMessage('Target targetdir/childdir already exists');
         $this->strategy->create($globSource, $dest);
         //passthru("tree {$this->destDir}/$dest");
     }
@@ -82,7 +85,7 @@ class SymlinkTest extends AbstractTest
         $this->mkdir($this->sourceDir . DS . $globSource);
         touch($this->sourceDir . DS . $sourceContents);
 
-        $dest = "targetdir"; // this dir should contain the target child dir
+        $dest = 'targetdir'; // this dir should contain the target child dir
         $this->mkdir($this->destDir . DS . $dest);
         $this->mkdir($this->destDir . DS . $dest . DS . basename($globSource));
 

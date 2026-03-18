@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MagentoHackathon\Composer\Magento;
 
 /**
  * Class PackageTypes
  * @package MagentoHackathon\Composer\Magento
  */
-class PackageTypes {
-
+class PackageTypes
+{
     /**
      * Package Types supported by Installer
      * @var array
@@ -17,6 +19,6 @@ class PackageTypes {
         'magento2-theme'    =>  '/app/design/',
         'magento2-library'  =>  '/lib/internal/',
         'magento2-language' =>  '/app/i18n/',
-        'magento2-component'=>  './',
+        'magento2-component' =>  './',
     ];
 }

@@ -1,15 +1,17 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Composer Magento Installer
  */
 
 namespace MagentoHackathon\Composer\Magento;
 
-class MapParser extends PathTranslationParser {
-
+class MapParser extends PathTranslationParser
+{
     protected $_mappings = [];
 
-    function __construct($mappings, $translations = [], $pathSuffix = '')
+    public function __construct($mappings, $translations = [], $pathSuffix = '')
     {
         parent::__construct($translations, $pathSuffix);
 

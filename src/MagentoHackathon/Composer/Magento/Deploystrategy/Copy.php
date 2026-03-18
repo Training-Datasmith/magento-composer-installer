@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Composer Magento Installer
  */
@@ -29,7 +31,6 @@ class Copy extends DeploystrategyAbstract
             . ltrim((string) $this->removeTrailingSlash($source), DIRECTORY_SEPARATOR);
         $destPath = $this->getDestDir() . DIRECTORY_SEPARATOR
             . ltrim((string) $this->removeTrailingSlash($dest), DIRECTORY_SEPARATOR);
-
 
         // Create all directories up to one below the target if they don't exist
         $destDir = dirname($destPath);

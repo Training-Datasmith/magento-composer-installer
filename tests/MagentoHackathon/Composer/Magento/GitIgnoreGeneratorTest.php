@@ -1,17 +1,13 @@
 <?php
+
+declare(strict_types=1);
+
 namespace MagentoHackathon\Composer\Magento;
 
 require_once(__DIR__ . '/InstallerTest.php');
 
-use Composer\Installer\LibraryInstaller;
-use Composer\Util\Filesystem;
-use Composer\Test\TestCase;
-use Composer\Composer;
-use Composer\Config;
-
 class GitIgnoreGeneratorTest extends InstallerTest
 {
-    
     protected function getGitIgnoreTestPath()
     {
         return $this->magentoDir . '/.gitignore';
@@ -23,7 +19,7 @@ class GitIgnoreGeneratorTest extends InstallerTest
     public function testGitIgnoreAppendToExistingFile()
     {
         $gitIgnoreFile      = $this->getGitIgnoreTestPath();
-        $gitIgnoreContent   = ["vendor", ".idea"];
+        $gitIgnoreContent   = ['vendor', '.idea'];
         file_put_contents($gitIgnoreFile, implode("\n", $gitIgnoreContent));
 
         $map = [
@@ -74,8 +70,8 @@ class GitIgnoreGeneratorTest extends InstallerTest
             ->setConstructorArgs([$this->io, $this->composer])
             ->setMethods(['appendGitIgnore'])
             ->getMock();
-        
-        $mockInstaller->setDeployManager( new DeployManager( $this->io ) );
+
+        $mockInstaller->setDeployManager(new DeployManager($this->io));
 
         $mockInstaller->expects($this->never())
             ->method('appendGitIgnore');
@@ -106,7 +102,7 @@ class GitIgnoreGeneratorTest extends InstallerTest
             ->method('appendGitIgnore')
             ->with($package, $gitIgnoreFile);
 
-        $mockInstaller->setDeployManager( new DeployManager( $this->io ) );
+        $mockInstaller->setDeployManager(new DeployManager($this->io));
 
         $mockInstaller->install($this->repository, $package);
     }

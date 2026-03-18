@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace MagentoHackathon\Composer\Magento;
 
 class ModmanParserTest extends \PHPUnit\Framework\TestCase
@@ -74,7 +77,7 @@ class ModmanParserTest extends \PHPUnit\Framework\TestCase
         $expected = [
             ['line/with/tab', 'record/one'],
             ['line/with/space', 'record/two'],
-            ['line/with/space/and/tab', 'record/three']
+            ['line/with/space/and/tab', 'record/three'],
         ];
         $this->object->setFile($this->modmanFileDir . 'modman');
         $this->assertSame($expected, $this->object->getMappings());

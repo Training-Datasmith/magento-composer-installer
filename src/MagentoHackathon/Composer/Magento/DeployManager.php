@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  *
  *
@@ -7,7 +9,6 @@
  */
 
 namespace MagentoHackathon\Composer\Magento;
-
 
 use Composer\IO\IOInterface;
 use MagentoHackathon\Composer\Magento\Deploy\Manager\Entry;
@@ -39,7 +40,7 @@ class DeployManager
      * For packages that need to be deployed before all other packages
      */
     private array $highPriority = [
-        'magento/magento2-base' => 10
+        'magento/magento2-base' => 10,
     ];
 
     public function __construct(IOInterface $io)

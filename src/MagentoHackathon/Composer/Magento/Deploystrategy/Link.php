@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Composer Magento Installer
  */
@@ -23,7 +25,6 @@ class Link extends DeploystrategyAbstract
         $sourcePath = $this->getSourceDir() . '/' . $this->removeTrailingSlash($source);
         $destPath = $this->getDestDir() . '/' . $this->removeTrailingSlash($dest);
 
-
         // Create all directories up to one below the target if they don't exist
         $destDir = dirname($destPath);
         if (!file_exists($destDir)) {
@@ -44,12 +45,12 @@ class Link extends DeploystrategyAbstract
                         continue;
                     }
                     $childSource = $source . '/' . $item;
-                    $this->create($childSource, substr($destPath, strlen($this->getDestDir())+1));
+                    $this->create($childSource, substr($destPath, strlen($this->getDestDir()) + 1));
                 }
                 return true;
             }
             $destPath .= '/' . basename($source);
-            return $this->create($source, substr($destPath, strlen($this->getDestDir())+1));
+            return $this->create($source, substr($destPath, strlen($this->getDestDir()) + 1));
         }
 
         // From now on $destPath can't be a directory, that case is already handled
@@ -78,8 +79,10 @@ class Link extends DeploystrategyAbstract
         }
         mkdir($destPath, 0777, true);
 
-        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($sourcePath),
-            \RecursiveIteratorIterator::SELF_FIRST);
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($sourcePath),
+            \RecursiveIteratorIterator::SELF_FIRST
+        );
 
         foreach ($iterator as $item) {
             $subDestPath = $destPath . '/' . $iterator->getSubPathName();

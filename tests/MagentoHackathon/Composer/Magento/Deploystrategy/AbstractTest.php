@@ -1,16 +1,21 @@
 <?php
+
+declare(strict_types=1);
+
 namespace MagentoHackathon\Composer\Magento\Deploystrategy;
 
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestCase;
 
-if (!defined('DS')) define('DS', DIRECTORY_SEPARATOR);
+if (!defined('DS')) {
+    define('DS', DIRECTORY_SEPARATOR);
+}
 
 abstract class AbstractTest extends TestCase
 {
-    const TEST_FILETYPE_FILE = 'file';
-    const TEST_FILETYPE_LINK = 'link';
-    const TEST_FILETYPE_DIR  = 'dir';
+    public const TEST_FILETYPE_FILE = 'file';
+    public const TEST_FILETYPE_LINK = 'link';
+    public const TEST_FILETYPE_DIR  = 'dir';
 
     /**
      * @var DeploystrategyAbstract
@@ -42,14 +47,14 @@ abstract class AbstractTest extends TestCase
      * @param string $dest
      * @return DeploystrategyAbstract
      */
-    abstract function getTestDeployStrategy($src, $dest);
+    abstract public function getTestDeployStrategy($src, $dest);
 
     /**
      * @abstract
      * @param bool $isDir
      * @return string
      */
-    abstract function getTestDeployStrategyFiletype($isDir = false);
+    abstract public function getTestDeployStrategyFiletype($isDir = false);
 
     /**
      * Sets up the fixture, for example, opens a network connection.
@@ -59,8 +64,8 @@ abstract class AbstractTest extends TestCase
     {
         $this->filesystem = new \Composer\Util\Filesystem();
         $this->testDir = sys_get_temp_dir() . DS . $this->getName();
-        $this->sourceDir = $this->testDir . DS . "module_dir";
-        $this->destDir = $this->testDir . DS . "magento_dir";
+        $this->sourceDir = $this->testDir . DS . 'module_dir';
+        $this->destDir = $this->testDir . DS . 'magento_dir';
         $this->filesystem->ensureDirectoryExists($this->sourceDir);
         $this->filesystem->ensureDirectoryExists($this->destDir);
         $this->strategy = $this->getTestDeployStrategy($this->sourceDir, $this->destDir);
@@ -96,7 +101,7 @@ abstract class AbstractTest extends TestCase
                 break;
             default:
                 throw new \InvalidArgumentException(
-                    "Invalid file type argument: " . $type
+                    'Invalid file type argument: ' . $type
                 );
         }
         if (!$result) {
@@ -145,7 +150,7 @@ abstract class AbstractTest extends TestCase
         $this->strategy->addMapping('t1', 't2');
         $this->assertTrue(is_array($this->strategy->getMappings()));
         $firstValue = $this->strategy->getMappings();
-        $this->assertEquals(array_pop($firstValue), ["t1", "t2"]);
+        $this->assertEquals(array_pop($firstValue), ['t1', 't2']);
     }
 
     public function testCreate()
@@ -162,24 +167,24 @@ abstract class AbstractTest extends TestCase
 
     public function testCopyDirToDir()
     {
-        $src = "hello1";
-        $dest = "hello2";
+        $src = 'hello1';
+        $dest = 'hello2';
         $this->mkdir($this->sourceDir . DS . $src);
-        touch($this->sourceDir . DS . $src . DS . "local.xml");
-        $this->assertTrue(is_readable($this->sourceDir . DS . $src . DS . "local.xml"));
-        $this->assertFalse(is_readable($this->destDir . DS . $dest . DS . "local.xml"));
+        touch($this->sourceDir . DS . $src . DS . 'local.xml');
+        $this->assertTrue(is_readable($this->sourceDir . DS . $src . DS . 'local.xml'));
+        $this->assertFalse(is_readable($this->destDir . DS . $dest . DS . 'local.xml'));
         $this->strategy->setCurrentMapping([$src, $dest]);
         $this->strategy->create($src, $dest);
-        $this->assertTrue(is_readable($this->destDir . DS . $dest . DS . "local.xml"));
+        $this->assertTrue(is_readable($this->destDir . DS . $dest . DS . 'local.xml'));
     }
 
     public function testGlobTargetDirExists()
     {
-        $globSource = "sourcedir/test.xml";
+        $globSource = 'sourcedir/test.xml';
         $this->mkdir($this->sourceDir . DS . dirname($globSource));
         touch($this->sourceDir . DS . $globSource);
 
-        $dest = "targetdir"; // this dir should contain the target
+        $dest = 'targetdir'; // this dir should contain the target
         $this->mkdir($this->destDir . DS . $dest);
 
         $testTarget = $this->destDir . DS . $dest . DS . basename($globSource);
@@ -199,7 +204,7 @@ abstract class AbstractTest extends TestCase
         $this->mkdir($this->sourceDir . DS . $globSource);
         touch($this->sourceDir . DS . $sourceContents);
 
-        $dest = "targetdir"; // this dir should contain the target child dir
+        $dest = 'targetdir'; // this dir should contain the target child dir
         $this->mkdir($this->destDir . DS . $dest . DS . basename($globSource));
 
         $testTarget = $this->destDir . DS . $dest . DS . basename($globSource) . DS . basename($sourceContents);
@@ -219,7 +224,7 @@ abstract class AbstractTest extends TestCase
         $this->mkdir($this->sourceDir . DS . $globSource);
         touch($this->sourceDir . DS . $sourceContents);
 
-        $dest = "targetdir"; // this dir should contain the target child dir
+        $dest = 'targetdir'; // this dir should contain the target child dir
         $this->mkdir($this->destDir . DS . $dest);
 
         $testTarget = $this->destDir . DS . $dest . DS . basename($globSource) . DS . basename($sourceContents);
@@ -234,11 +239,11 @@ abstract class AbstractTest extends TestCase
 
     public function testGlobTargetDirDoesNotExists()
     {
-        $globSource = "sourcedir/test.xml";
+        $globSource = 'sourcedir/test.xml';
         $this->mkdir($this->sourceDir . DS . dirname($globSource));
         touch($this->sourceDir . DS . $globSource);
 
-        $dest = "targetdir"; // this will be the target!
+        $dest = 'targetdir'; // this will be the target!
 
         $testTarget = $this->destDir . DS . $dest;
 
@@ -252,11 +257,11 @@ abstract class AbstractTest extends TestCase
 
     public function testGlobSlashDirectoryExists()
     {
-        $globSource = "sourcedir/test.xml";
+        $globSource = 'sourcedir/test.xml';
         $this->mkdir($this->sourceDir . DS . dirname($globSource));
         touch($this->sourceDir . DS . $globSource);
 
-        $dest = "targetdir/";
+        $dest = 'targetdir/';
         $this->mkdir($this->destDir . DS . $dest);
 
         $testTarget = $this->destDir . DS . $dest . basename($globSource);
@@ -272,11 +277,11 @@ abstract class AbstractTest extends TestCase
 
     public function testGlobSlashDirectoryDoesNotExists()
     {
-        $globSource = "sourcedir/test.xml";
+        $globSource = 'sourcedir/test.xml';
         $this->mkdir($this->sourceDir . DS . dirname($globSource));
         touch($this->sourceDir . DS . $globSource);
 
-        $dest = "targetdir/"; // the target should be created inside this dir because of the slash
+        $dest = 'targetdir/'; // the target should be created inside this dir because of the slash
 
         $testTarget = $this->destDir . DS . $dest . basename($globSource);
 
@@ -291,7 +296,7 @@ abstract class AbstractTest extends TestCase
 
     public function testGlobWildcardTargetDirDoesNotExist()
     {
-        $globSource = "sourcedir/*";
+        $globSource = 'sourcedir/*';
         $glob_dir = dirname($globSource);
         $files = ['test1.xml', 'test2.xml'];
         $this->mkdir($this->sourceDir . DS . $glob_dir);
@@ -299,7 +304,7 @@ abstract class AbstractTest extends TestCase
             touch($this->sourceDir . DS . $glob_dir . DS . $file);
         }
 
-        $dest = "targetdir";
+        $dest = 'targetdir';
 
         $this->strategy->setCurrentMapping([$globSource, $dest]);
         $this->strategy->create($globSource, $dest);
@@ -307,7 +312,6 @@ abstract class AbstractTest extends TestCase
         $targetDir = $this->destDir . DS . $dest;
         $this->assertFileExists($targetDir);
         $this->assertFileType($targetDir, self::TEST_FILETYPE_DIR);
-
 
         foreach ($files as $file) {
             $testTarget = $this->destDir . DS . $dest . DS . $file;
@@ -319,7 +323,7 @@ abstract class AbstractTest extends TestCase
 
     public function testGlobWildcardTargetDirDoesExist()
     {
-        $globSource = "sourcedir/*";
+        $globSource = 'sourcedir/*';
         $glob_dir = dirname($globSource);
         $files = ['test1.xml', 'test2.xml'];
         $this->mkdir($this->sourceDir . DS . $glob_dir);
@@ -327,7 +331,7 @@ abstract class AbstractTest extends TestCase
             touch($this->sourceDir . DS . $glob_dir . DS . $file);
         }
 
-        $dest = "targetdir";
+        $dest = 'targetdir';
         $this->mkdir($this->destDir . DS . $dest);
 
         $this->strategy->setCurrentMapping([$globSource, $dest]);
@@ -336,7 +340,6 @@ abstract class AbstractTest extends TestCase
         $targetDir = $this->destDir . DS . $dest;
         $this->assertFileExists($targetDir);
         $this->assertFileType($targetDir, self::TEST_FILETYPE_DIR);
-
 
         foreach ($files as $file) {
             $testTarget = $this->destDir . DS . $dest . DS . $file;
@@ -357,8 +360,8 @@ abstract class AbstractTest extends TestCase
             $this->tearDown();
             $this->setUp();
 
-            list ($globSource, $dest) = $fixture;
-            $sourceDirContent = "test.xml";
+            list($globSource, $dest) = $fixture;
+            $sourceDirContent = 'test.xml';
             $this->mkdir($this->sourceDir . DS . $globSource);
             touch($this->sourceDir . DS . $globSource . DS . $sourceDirContent);
 
@@ -390,8 +393,8 @@ abstract class AbstractTest extends TestCase
             $this->tearDown();
             $this->setUp();
 
-            list ($globSource, $dest) = $fixture;
-            $sourceDirContent = "test.xml";
+            list($globSource, $dest) = $fixture;
+            $sourceDirContent = 'test.xml';
             $this->mkdir($this->sourceDir . DS . $globSource);
             touch($this->sourceDir . DS . $globSource . DS . $sourceDirContent);
 

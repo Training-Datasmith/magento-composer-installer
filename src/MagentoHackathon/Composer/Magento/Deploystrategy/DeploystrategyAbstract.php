@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Composer Magento Installer
  */
@@ -28,7 +30,7 @@ abstract class DeploystrategyAbstract
 
     /**
      * The List of entries which files should not get deployed
-     * 
+     *
      * @var array
      */
     protected $ignoredMappings = [];
@@ -55,8 +57,7 @@ abstract class DeploystrategyAbstract
          * The magento installation's base directory
          */
         protected $destDir
-    )
-    {
+    ) {
     }
 
     /**
@@ -167,10 +168,9 @@ abstract class DeploystrategyAbstract
         $this->currentMapping = $mapping;
     }
 
-
     /**
      * sets the current ignored mappings
-     * 
+     *
      * @param $ignoredMappings
      */
     public function setIgnoredMappings($ignoredMappings): void
@@ -180,7 +180,7 @@ abstract class DeploystrategyAbstract
 
     /**
      * gets the current ignored mappings
-     * 
+     *
      * @return array
      */
     public function getIgnoredMappings()
@@ -188,19 +188,18 @@ abstract class DeploystrategyAbstract
         return $this->ignoredMappings;
     }
 
-
     /**
      * @param string $destination
      *
      * @return bool
      */
-    protected  function isDestinationIgnored($destination)
+    protected function isDestinationIgnored($destination)
     {
         $destination = '/'.$destination;
-        $destination = str_replace('/./','/', $destination);
-        $destination = str_replace('//','/', $destination);
-        foreach($this->ignoredMappings as $ignored){
-            if( str_starts_with((string) $ignored, $destination) ){
+        $destination = str_replace('/./', '/', $destination);
+        $destination = str_replace('//', '/', $destination);
+        foreach ($this->ignoredMappings as $ignored) {
+            if (str_starts_with((string) $ignored, $destination)) {
                 return true;
             }
         }
@@ -217,7 +216,7 @@ abstract class DeploystrategyAbstract
 
     protected function removeTrailingSlash($path)
     {
-       return rtrim((string) $path, ' \\/');
+        return rtrim((string) $path, ' \\/');
     }
 
     /**
@@ -231,10 +230,10 @@ abstract class DeploystrategyAbstract
      */
     public function create($source, string $dest)
     {
-        if($this->isDestinationIgnored($dest)){
+        if ($this->isDestinationIgnored($dest)) {
             return;
         }
-        
+
         $sourcePath = $this->getSourceDir() . DIRECTORY_SEPARATOR
             . ltrim((string) $this->removeTrailingSlash($source), DIRECTORY_SEPARATOR);
         $destPath = $this->getDestDir() . DIRECTORY_SEPARATOR . $dest;
@@ -297,7 +296,7 @@ abstract class DeploystrategyAbstract
      */
     public function remove($source, string $dest): void
     {
-        if ($this->isDestinationIgnored($dest)){
+        if ($this->isDestinationIgnored($dest)) {
             return;
         }
 
@@ -341,7 +340,7 @@ abstract class DeploystrategyAbstract
                 }
                 $newDest = substr($destPath . '/' . basename($match), strlen($this->getDestDir()));
                 $newDest = ltrim($newDest, ' \\/');
-                $this->remove(substr($match, strlen((string) $this->getSourceDir())+1), $newDest);
+                $this->remove(substr($match, strlen((string) $this->getSourceDir()) + 1), $newDest);
             }
             return;
         }
@@ -359,8 +358,10 @@ abstract class DeploystrategyAbstract
     {
         $absoluteDir = $this->getDestDir() . '/' . $dir;
         if (is_dir($absoluteDir)) {
-            $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($absoluteDir),
-                    \RecursiveIteratorIterator::CHILD_FIRST);
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($absoluteDir),
+                \RecursiveIteratorIterator::CHILD_FIRST
+            );
 
             foreach ($iterator as $item) {
                 $path = (string) $item;
@@ -399,13 +400,12 @@ abstract class DeploystrategyAbstract
     public static function rmdirRecursive($dir): void
     {
         $fs = new \Composer\Util\Filesystem();
-        if(is_dir($dir)){
+        if (is_dir($dir)) {
             $result = $fs->removeDirectory($dir);
-        }else{
+        } else {
             @unlink($dir);
         }
     }
-
 
     /**
      * Create the module's files in the given destination.

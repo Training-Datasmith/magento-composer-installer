@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Composer Magento Installer
  */
@@ -11,8 +13,6 @@ use MagentoHackathon\Composer\Magento\DeployManager;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Composer\Downloader\VcsDownloader;
-use MagentoHackathon\Composer\Magento\Installer;
 
 /**
  * @author Tiago Ribeiro <tiago.ribeiro@seegno.com>
@@ -29,11 +29,12 @@ class DeployCommand extends \Composer\Command\BaseCommand
             // we dont need to define verbose, because composer already defined it internal
             //new InputOption('verbose', 'v', InputOption::VALUE_NONE, 'Show modified files for each directory that contains changes.'),
         ])
-            ->setHelp(<<<EOT
+            ->setHelp(
+                <<<EOT
 This command deploys all magento Modules
 
 EOT
-        )
+            )
         ;
     }
 
@@ -49,28 +50,24 @@ EOT
         /**
          * @var $moduleInstaller \MagentoHackathon\Composer\Magento\Installer
          */
-        $moduleInstaller = $im->getInstaller("magento-module");
+        $moduleInstaller = $im->getInstaller('magento-module');
 
-
-        $deployManager = new DeployManager( $this->getIO() );
+        $deployManager = new DeployManager($this->getIO());
 
         $extra          = $composer->getPackage()->getExtra();
         $sortPriority   = $extra['magento-deploy-sort-priority'] ?? [];
-        $deployManager->setSortPriority( $sortPriority );
+        $deployManager->setSortPriority($sortPriority);
 
-
-
-        $moduleInstaller->setDeployManager( $deployManager );
-        
+        $moduleInstaller->setDeployManager($deployManager);
 
         foreach ($installedRepo->getPackages() as $package) {
 
             if ($input->getOption('verbose')) {
-                $output->writeln( $package->getName() );
-                $output->writeln( $package->getType() );
+                $output->writeln($package->getName());
+                $output->writeln($package->getType());
             }
 
-            if( $package->getType() != "magento-module" ){
+            if ($package->getType() != 'magento-module') {
                 continue;
             }
             if ($input->getOption('verbose')) {
@@ -79,7 +76,7 @@ EOT
 
             $strategy = $moduleInstaller->getDeployStrategy($package);
             if ($input->getOption('verbose')) {
-                $output->writeln("used " . $strategy::class . " as deploy strategy");
+                $output->writeln('used ' . $strategy::class . ' as deploy strategy');
             }
             $strategy->setMappings($moduleInstaller->getParser($package)->getMappings());
 
@@ -87,7 +84,7 @@ EOT
             $deployManagerEntry->setPackageName($package->getName());
             $deployManagerEntry->setDeployStrategy($strategy);
             $deployManager->addPackage($deployManagerEntry);
-            
+
         }
 
         $deployManager->doDeploy();

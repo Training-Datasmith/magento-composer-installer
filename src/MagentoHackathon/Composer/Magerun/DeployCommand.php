@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MagentoHackathon\Composer\Magerun;
 
 use N98\Magento\Command\AbstractMagentoCommand;
@@ -10,18 +12,18 @@ class DeployCommand extends AbstractMagentoCommand
 {
     protected function configure()
     {
-      $this
-          ->setName('composer:magento:deploy')
-          ->setDescription('Test command registered in a module')
-      ;
+        $this
+            ->setName('composer:magento:deploy')
+            ->setDescription('Test command registered in a module')
+        ;
     }
 
-   /**
-     * @return int|void
-     */
+    /**
+      * @return int|void
+      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        
+
         $output->writeln('it works, maybe');
     }
 }

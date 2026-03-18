@@ -1,19 +1,19 @@
 <?php
+
+declare(strict_types=1);
 /**
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  */
 
 namespace MagentoHackathon\Composer\Magento\FullStack;
 
-use Composer\Util\Filesystem;
 use Symfony\Component\Process\Process;
 
 abstract class AbstractTest extends \PHPUnit\Framework\TestCase
 {
-
     protected static $processLogCounter = 1;
 
     /**
@@ -52,17 +52,17 @@ abstract class AbstractTest extends \PHPUnit\Framework\TestCase
             self::getProjectRoot()
         );
         $process->run();
-        if( $process->getExitCode() !== 0){
+        if ($process->getExitCode() !== 0) {
             $message = 'process for <code>'.$process->getCommandLine().'</code> exited with '.$process->getExitCode().': '.$process->getExitCodeText();
             $message .= PHP_EOL.'Error Message:'.PHP_EOL.$process->getErrorOutput();
             $message .= PHP_EOL.'Output:'.PHP_EOL.$process->getOutput();
             echo $message;
-        }else{
-            self::logProcessOutput($process,'createComposerArtifact');
+        } else {
+            self::logProcessOutput($process, 'createComposerArtifact');
         }
 
     }
-    
+
     public static function tearDownAfterClass(): void
     {
         $rootComposer = json_decode(file_get_contents(self::getProjectRoot() . '/composer.json'), true);
@@ -89,25 +89,30 @@ abstract class AbstractTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    protected static function getBasePath(){
+    protected static function getBasePath()
+    {
         return realpath(__DIR__.'/../../../../FullStackTest');
     }
 
-    protected static function getProjectRoot(){
+    protected static function getProjectRoot()
+    {
         return realpath(__DIR__.'/../../../../..');
     }
 
-    protected static function getComposerCommand(){
+    protected static function getComposerCommand()
+    {
 
         return 'composer.phar';
     }
 
-    protected static function getComposerArgs(){
+    protected static function getComposerArgs()
+    {
         return '--prefer-dist --no-dev --no-progress --no-interaction --profile -vvv';
     }
 
-    protected static function logProcessOutput(Process $process, $name = null){
-        if($name === null) {
+    protected static function logProcessOutput(Process $process, $name = null)
+    {
+        if ($name === null) {
             $name = self::$processLogCounter;
             self::$processLogCounter++;
         }
@@ -115,7 +120,7 @@ abstract class AbstractTest extends \PHPUnit\Framework\TestCase
             self::getBasePath(),
             'logs',
             str_replace('\\', '_', static::class),
-            $name . '_Output.log'
+            $name . '_Output.log',
         ]);
         if (!is_dir(dirname($logPath))) {
             mkdir(dirname($logPath));
@@ -135,4 +140,4 @@ abstract class AbstractTest extends \PHPUnit\Framework\TestCase
         $message .= PHP_EOL.'Output:'.PHP_EOL.$process->getOutput();
         $this->assertEquals(0, $process->getExitCode(), $message);
     }
-} 
+}

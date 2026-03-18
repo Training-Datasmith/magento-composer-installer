@@ -1,11 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
 namespace MagentoHackathon\Composer\Magento;
 
-use Composer\Installer\LibraryInstaller;
-use Composer\Util\Filesystem;
-use Composer\Test\TestCase;
 use Composer\Composer;
 use Composer\Config;
+use Composer\Util\Filesystem;
 
 /**
  * Test that path mapping translations work correctly, including different
@@ -15,8 +16,7 @@ class PathMappingTranslationTest extends InstallerTest
 {
     protected function setUp(): void
     {
-        $this->fs = new Filesystem;
-
+        $this->fs = new Filesystem();
 
         $this->vendorDir = realpath(sys_get_temp_dir()) . DIRECTORY_SEPARATOR . 'composer-test-vendor';
         $this->fs->ensureDirectoryExists($this->vendorDir);
@@ -36,7 +36,7 @@ class PathMappingTranslationTest extends InstallerTest
                     'js/'       =>  'public/js/',
                     'media/'    =>  'public/media/',
                     'skin/'     =>  'public/skin/',
-                ]
+                ],
             ]
         ));
 
@@ -123,7 +123,7 @@ class PathMappingTranslationTest extends InstallerTest
         $package = $this->createPathMappingTranslationMock();
         $mappings = $this->object->getParser($package)->getMappings();
 
-        $this->assertContains(['src2/js', 'public/js/examplename'],$mappings);
+        $this->assertContains(['src2/js', 'public/js/examplename'], $mappings);
     }
 
     /**

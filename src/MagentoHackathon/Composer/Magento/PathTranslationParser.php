@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MagentoHackathon\Composer\Magento;
 
 /**
@@ -41,8 +43,8 @@ abstract class PathTranslationParser implements Parser
     protected function createPrefixVariants($translations)
     {
         $newTranslations = [];
-        foreach($translations as $key => $value) {
-            foreach($this->pathPrefixVariants as $variant) {
+        foreach ($translations as $key => $value) {
+            foreach ($this->pathPrefixVariants as $variant) {
                 $newTranslations[$variant.$key] = $value;
             }
         }
@@ -66,9 +68,9 @@ abstract class PathTranslationParser implements Parser
     {
         // each element of $mappings is an array with two elements; first is
         // the source and second is the target
-        foreach($mappings as &$mapping) {
-            foreach($this->pathPrefixTranslations as $prefix => $translate) {
-                if(str_starts_with((string) $mapping[1], (string) $prefix)) {
+        foreach ($mappings as &$mapping) {
+            foreach ($this->pathPrefixTranslations as $prefix => $translate) {
+                if (str_starts_with((string) $mapping[1], (string) $prefix)) {
                     // replace the old prefix with the translated version
                     $mapping[1] = $translate . substr((string) $mapping[1], strlen((string) $prefix));
                     // should never need to translate a prefix more than once

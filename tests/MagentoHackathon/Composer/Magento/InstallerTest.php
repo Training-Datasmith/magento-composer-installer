@@ -1,10 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
 namespace MagentoHackathon\Composer\Magento;
 
-use Composer\Util\Filesystem;
-use Composer\Test\TestCase;
 use Composer\Composer;
 use Composer\Config;
+use Composer\Util\Filesystem;
 
 class InstallerTest extends \PHPUnit\Framework\TestCase
 {
@@ -27,8 +29,7 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp(): void
     {
-        $this->fs = new Filesystem;
-
+        $this->fs = new Filesystem();
 
         $this->vendorDir = realpath(sys_get_temp_dir()) . DIRECTORY_SEPARATOR . 'composer-test-vendor';
         $this->fs->ensureDirectoryExists($this->vendorDir);
@@ -48,7 +49,7 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
             'config' => [
                 'vendor-dir' => $this->vendorDir,
                 'bin-dir' => $this->binDir,
-            ]
+            ],
         ]);
 
         $this->dm = $this->getMockBuilder('Composer\Downloader\DownloadManager')
@@ -82,7 +83,7 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
 
         $package->method('getExtra')
             ->willReturn($extraData);
-        
+
         $package->method('getName')
             ->willReturn($name);
 
@@ -96,7 +97,7 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
     {
         $extra = ['magento-deploystrategy' => $strategy];
         $extra = array_merge($composerExtra, $extra);
-        $package = $this->createPackageMock($extra,$packageName);
+        $package = $this->createPackageMock($extra, $packageName);
         $this->composer->setPackage($package);
         $installer = new Installer($this->io, $this->composer);
         $this->assertInstanceOf($expectedClass, $installer->getDeployStrategy($package));
@@ -113,25 +114,25 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
     /**
      * @dataProvider parserTypeProvider
      */
-    public function testGetParser( $packageExtra, $expectedClass, $composerExtra, $packageName, $prepareCallback )
+    public function testGetParser($packageExtra, $expectedClass, $composerExtra, $packageName, $prepareCallback)
     {
-        $composerExtra = array_merge( $composerExtra, $this->composer->getPackage()->getExtra() );
+        $composerExtra = array_merge($composerExtra, $this->composer->getPackage()->getExtra());
         $this->composer->setPackage($this->createPackageMock($composerExtra));
-        
-        $package = $this->createPackageMock( $packageExtra, $packageName );
+
+        $package = $this->createPackageMock($packageExtra, $packageName);
         $prepareCallback($this->vendorDir);
         $package->method('getType')->willReturn('magento2-library');
 
         $this->assertInstanceOf($expectedClass, $this->object->getParser($package));
     }
-    
+
     public function deployMethodProvider()
     {
         $deployOverwrite = [
             'example/test2' => 'symlink',
             'example/test3' => 'none',
         ];
-        
+
         return [
             [
                 'method' => 'copy',
@@ -167,7 +168,7 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
             ],
         ];
     }
-    
+
     public function parserTypeProvider()
     {
         $mapOverwrite = [
@@ -177,69 +178,69 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
         return [
             [
                 'packageExtra'  => [
-                    'map' => [['test', 'test']]
+                    'map' => [['test', 'test']],
                 ],
                 'expectedClass' => 'MagentoHackathon\Composer\Magento\MapParser',
                 'composerExtra' => ['magento-map-overwrite' => $mapOverwrite],
                 'packageName'   => 'example/test1',
-                'prepareCallback' => function($vendorDir){
-                        
-                    },
+                'prepareCallback' => function ($vendorDir) {
+
+                },
             ],
             [
                 'packageExtra'  => ['map' => null],
                 'expectedClass' => 'MagentoHackathon\Composer\Magento\ModmanParser',
                 'composerExtra' => ['magento-map-overwrite' => $mapOverwrite],
                 'packageName'   => 'example/test1',
-                'prepareCallback' => function($vendorDir) {
+                'prepareCallback' => function ($vendorDir) {
                     $directory = $this->getPackageDir($vendorDir, 'example/test1');
                     mkdir($directory, 0755, true);
                     touch($directory . 'modman');
-                }
+                },
             ],
             [
                 'packageExtra'  => ['map' => null, 'package-xml' => 'package.xml'],
                 'expectedClass' => 'MagentoHackathon\Composer\Magento\PackageXmlParser',
                 'composerExtra' => ['magento-map-overwrite' => $mapOverwrite],
                 'packageName'   => 'example/test1',
-                'prepareCallback' => function($vendorDir) {
+                'prepareCallback' => function ($vendorDir) {
                     $directory = $this->getPackageDir($vendorDir, 'example/test1');
                     mkdir($directory, 0755, true);
                     touch($directory . 'package.xml');
-                }
+                },
             ],
             [
                 'packageExtra'  => [
-                    'map' => [['test', 'test']]
+                    'map' => [['test', 'test']],
                 ],
                 'expectedClass' => 'MagentoHackathon\Composer\Magento\MapParser',
                 'composerExtra' => ['magento-map-overwrite' => $mapOverwrite],
                 'packageName'   => 'example/test1',
-                'prepareCallback' => function($vendorDir){
+                'prepareCallback' => function ($vendorDir) {
 
-                    },
+                },
             ],
             [
                 'packageExtra'  => ['map' => null],
                 'expectedClass' => 'MagentoHackathon\Composer\Magento\ModmanParser',
                 'composerExtra' => ['magento-map-overwrite' => $mapOverwrite],
                 'packageName'   => 'example/test1',
-                'prepareCallback' => function($vendorDir) {
+                'prepareCallback' => function ($vendorDir) {
                     $directory = $this->getPackageDir($vendorDir, 'example/test1');
                     mkdir($directory, 0755, true);
                     touch($directory . 'modman');
-                }
+                },
             ],
             [
                 'packageExtra'  => ['map' => null],
                 'expectedClass' => 'MagentoHackathon\Composer\Magento\MapParser',
                 'composerExtra' => ['magento-map-overwrite' => $mapOverwrite],
                 'packageName'   => 'example/test2',
-                'prepareCallback' => function($vendorDir) {
+                'prepareCallback' => function ($vendorDir) {
                     $directory = $this->getPackageDir($vendorDir, 'example/test2');
                     mkdir($directory, 0755, true);
                     touch($directory . 'modman');
-                }
+                },
             ],
         ];
     }
@@ -274,7 +275,7 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
                     ['src2/skin',                              './skin/frontend/default/default/examplename'],
                     ['src2/js',                                './js/examplename'],
                     ['src2/media/images',                      './media/examplename_images'],
-                ]
+                ],
             ]
         );
     }
@@ -342,7 +343,7 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
         $package = $this->createPathMappingTranslationMock();
         $mappings = $this->object->getParser($package)->getMappings();
 
-        $this->assertContains(['src2/js', './js/examplename'],$mappings);
+        $this->assertContains(['src2/js', './js/examplename'], $mappings);
     }
 
     /**
@@ -368,4 +369,3 @@ class InstallerTest extends \PHPUnit\Framework\TestCase
     }
 
 }
-

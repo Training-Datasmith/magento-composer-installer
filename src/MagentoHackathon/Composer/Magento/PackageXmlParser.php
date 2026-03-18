@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Composer Magento Installer
  */
@@ -154,7 +156,8 @@ class PackageXmlParser extends PathTranslationParser
     /**
      * @throws RuntimeException
      */
-    protected function getElementPaths(\SimpleXMLElement $element): array {
+    protected function getElementPaths(\SimpleXMLElement $element): array
+    {
         $type = $element->getName();
         $name = $element->attributes()->name;
         $elementPaths = [];

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Composer Magento Installer
  */
@@ -79,7 +81,7 @@ class Symlink extends DeploystrategyAbstract
             } else {
                 $destPath .= '/' . basename($source);
             }
-            return $this->create($source, substr($destPath, strlen($this->getDestDir())+1));
+            return $this->create($source, substr($destPath, strlen($this->getDestDir()) + 1));
         }
 
         // From now on $destPath can't be a directory, that case is already handled
@@ -100,12 +102,12 @@ class Symlink extends DeploystrategyAbstract
         }
 
         // Create symlink
-        if(false === symlink($sourcePath, $destPath)) {
-            throw new \ErrorException("An error occured while creating symlink" . $sourcePath);
+        if (false === symlink($sourcePath, $destPath)) {
+            throw new \ErrorException('An error occured while creating symlink' . $sourcePath);
         }
 
         // Check we where able to create the symlink
-        if(false === $destPath = readlink($destPath)){
+        if (false === $destPath = readlink($destPath)) {
             throw new \ErrorException("Symlink $destPath points to target $destPath");
         }
 
