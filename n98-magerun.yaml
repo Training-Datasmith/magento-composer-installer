@@ -3,4 +3,4 @@ autoloaders:
 
 commands:
    customCommands:
-       - MagentoHackathon\Composer\Magerun\DeployCommand
+       - Magento_Hackathon\Composer\Magerun\Deploy_Command
