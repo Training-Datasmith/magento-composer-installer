@@ -1,8 +1,7 @@
 <?php
 
-declare(strict_types=1);
-
-namespace MagentoHackathon\Composer\Magento;
+declare (strict_types=1);
+namespace Magento_Hackathon\Composer\Magento;
 
 interface Parser
 {
@@ -19,5 +18,5 @@ interface Parser
      * @return array
      * @throws \ErrorException
      */
-    public function getMappings();
+    public function get_mappings();
 }

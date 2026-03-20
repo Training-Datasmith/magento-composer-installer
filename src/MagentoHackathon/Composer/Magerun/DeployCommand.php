@@ -1,29 +1,22 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
+namespace Magento_Hackathon\Composer\Magerun;
 
-namespace MagentoHackathon\Composer\Magerun;
-
-use N98\Magento\Command\AbstractMagentoCommand;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-
-class DeployCommand extends AbstractMagentoCommand
+use N98\Magento\Command\Abstract_Magento_Command;
+use Symfony\Component\Console\Input\Input_Interface;
+use Symfony\Component\Console\Output\Output_Interface;
+class Deploy_Command extends Abstract_Magento_Command
 {
     protected function configure()
     {
-        $this
-            ->setName('composer:magento:deploy')
-            ->setDescription('Test command registered in a module')
-        ;
+        $this->set_name('composer:magento:deploy')->set_description('Test command registered in a module');
     }
-
     /**
-      * @return int|void
-      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+     * @return int|void
+     */
+    protected function execute(Input_Interface $input, Output_Interface $output)
     {
-
         $output->writeln('it works, maybe');
     }
 }

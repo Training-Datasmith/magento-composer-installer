@@ -1,16 +1,15 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Composer Magento Installer
  */
-
-namespace MagentoHackathon\Composer\Magento\Deploystrategy;
+namespace Magento_Hackathon\Composer\Magento\Deploystrategy;
 
 /**
  * Symlink deploy strategy
  */
-class Copy extends DeploystrategyAbstract
+class Copy extends Deploystrategy_Abstract
 {
     /**
      * copy files
@@ -20,49 +19,37 @@ class Copy extends DeploystrategyAbstract
      * @return bool
      * @throws \ErrorException
      */
-    public function createDelegate($source, $dest)
+    public function create_delegate($source, $dest)
     {
-        [$mapSource, $mapDest] = $this->getCurrentMapping();
-        $mapSource = $this->removeTrailingSlash($mapSource);
-        $mapDest = $this->removeTrailingSlash($mapDest);
-        $cleanDest = $this->removeTrailingSlash($dest);
-
-        $sourcePath = $this->getSourceDir() . DIRECTORY_SEPARATOR
-            . ltrim((string) $this->removeTrailingSlash($source), DIRECTORY_SEPARATOR);
-        $destPath = $this->getDestDir() . DIRECTORY_SEPARATOR
-            . ltrim((string) $this->removeTrailingSlash($dest), DIRECTORY_SEPARATOR);
-
+        [$map_source, $map_dest] = $this->get_current_mapping();
+        $map_source = $this->remove_trailing_slash($map_source);
+        $map_dest = $this->remove_trailing_slash($map_dest);
+        $clean_dest = $this->remove_trailing_slash($dest);
+        $source_path = $this->get_source_dir() . DIRECTORY_SEPARATOR . ltrim((string) $this->remove_trailing_slash($source), DIRECTORY_SEPARATOR);
+        $dest_path = $this->get_dest_dir() . DIRECTORY_SEPARATOR . ltrim((string) $this->remove_trailing_slash($dest), DIRECTORY_SEPARATOR);
         // Create all directories up to one below the target if they don't exist
-        $destDir = dirname($destPath);
-        if (!file_exists($destDir)) {
-            mkdir($destDir, 0755, true);
+        $dest_dir = dirname($dest_path);
+        if (!file_exists($dest_dir)) {
+            mkdir($dest_dir, 0755, true);
         }
-
         // Handle source to dir copy,
         // e.g. Namespace_Module.csv => app/locale/de_DE/
         // Namespace/ModuleDir => Namespace/
         // Namespace/ModuleDir => Namespace/, but Namespace/ModuleDir may exist
         // Namespace/ModuleDir => Namespace/ModuleDir, but ModuleDir may exist
-
         // first iteration through, we need to update the mappings to correctly handle mismatch globs
-        if ($mapSource == $this->removeTrailingSlash($source) && $mapDest == $this->removeTrailingSlash($dest)) {
-            if (basename($sourcePath) !== basename($destPath)) {
-                $this->setCurrentMapping([$mapSource, $mapDest . DIRECTORY_SEPARATOR . basename($source)]);
-                $cleanDest = $cleanDest . DIRECTORY_SEPARATOR . basename($source);
+        if ($map_source == $this->remove_trailing_slash($source) && $map_dest == $this->remove_trailing_slash($dest)) {
+            if (basename($source_path) !== basename($dest_path)) {
+                $this->set_current_mapping([$map_source, $map_dest . DIRECTORY_SEPARATOR . basename($source)]);
+                $clean_dest = $clean_dest . DIRECTORY_SEPARATOR . basename($source);
             }
         }
-
-        if (file_exists($destPath) && is_dir($destPath)) {
-            $mapSource = rtrim((string) $mapSource, '*');
-            $mapSourceLen = empty($mapSource) ? 0 : strlen($mapSource);
-            if (
-                strcmp(
-                    substr(ltrim((string) $cleanDest, DIRECTORY_SEPARATOR), strlen((string) $mapDest)),
-                    substr(ltrim($source, DIRECTORY_SEPARATOR), $mapSourceLen)
-                ) === 0
-            ) {
+        if (file_exists($dest_path) && is_dir($dest_path)) {
+            $map_source = rtrim((string) $map_source, '*');
+            $map_source_len = empty($map_source) ? 0 : strlen($map_source);
+            if (strcmp(substr(ltrim((string) $clean_dest, DIRECTORY_SEPARATOR), strlen((string) $map_dest)), substr(ltrim($source, DIRECTORY_SEPARATOR), $map_source_len)) === 0) {
                 // copy each child of $sourcePath into $destPath
-                foreach (new \DirectoryIterator($sourcePath) as $item) {
+                foreach (new \Directory_Iterator($source_path) as $item) {
                     $item = (string) $item;
                     if (!strcmp($item, '.')) {
                         continue;
@@ -70,60 +57,50 @@ class Copy extends DeploystrategyAbstract
                     if (!strcmp($item, '..')) {
                         continue;
                     }
-                    $childSource = $this->removeTrailingSlash($source) . DIRECTORY_SEPARATOR . $item;
-                    $this->create($childSource, substr($destPath, strlen($this->getDestDir()) + 1));
+                    $child_source = $this->remove_trailing_slash($source) . DIRECTORY_SEPARATOR . $item;
+                    $this->create($child_source, substr($dest_path, strlen($this->get_dest_dir()) + 1));
                 }
                 return true;
             }
-            $destPath = $this->removeTrailingSlash($destPath) . DIRECTORY_SEPARATOR . basename($source);
-            return $this->create($source, substr($destPath, strlen($this->getDestDir()) + 1));
+            $dest_path = $this->remove_trailing_slash($dest_path) . DIRECTORY_SEPARATOR . basename($source);
+            return $this->create($source, substr($dest_path, strlen($this->get_dest_dir()) + 1));
         }
-
         // From now on $destPath can't be a directory, that case is already handled
-
         // If file exists and force is not specified, throw exception unless FORCE is set
-        if (file_exists($destPath)) {
-            if ($this->isForced()) {
-                unlink($destPath);
+        if (file_exists($dest_path)) {
+            if ($this->is_forced()) {
+                unlink($dest_path);
             } else {
-                throw new \ErrorException("Target $dest already exists (set extra.magento-force to override)");
+                throw new \ErrorException("Target {$dest} already exists (set extra.magento-force to override)");
             }
         }
-
         // File to file
-        if (!is_dir($sourcePath)) {
-            if (is_dir($destPath)) {
-                $destPath .= DIRECTORY_SEPARATOR . basename($sourcePath);
+        if (!is_dir($source_path)) {
+            if (is_dir($dest_path)) {
+                $dest_path .= DIRECTORY_SEPARATOR . basename($source_path);
             }
-            return copy($sourcePath, $destPath);
+            return copy($source_path, $dest_path);
         }
-
         // Copy dir to dir
         // First create destination folder if it doesn't exist
-        if (file_exists($destPath)) {
-            $destPath .= DIRECTORY_SEPARATOR . basename($sourcePath);
+        if (file_exists($dest_path)) {
+            $dest_path .= DIRECTORY_SEPARATOR . basename($source_path);
         }
-        mkdir($destPath, 0755, true);
-
-        $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($sourcePath),
-            \RecursiveIteratorIterator::SELF_FIRST
-        );
-
+        mkdir($dest_path, 0755, true);
+        $iterator = new \Recursive_Iterator_Iterator(new \Recursive_Directory_Iterator($source_path), \Recursive_Iterator_Iterator::SELF_FIRST);
         foreach ($iterator as $item) {
-            $subDestPath = $destPath . DIRECTORY_SEPARATOR . $iterator->getSubPathName();
-            if ($item->isDir()) {
-                if (!file_exists($subDestPath)) {
-                    mkdir($subDestPath, 0755, true);
+            $sub_dest_path = $dest_path . DIRECTORY_SEPARATOR . $iterator->get_sub_path_name();
+            if ($item->is_dir()) {
+                if (!file_exists($sub_dest_path)) {
+                    mkdir($sub_dest_path, 0755, true);
                 }
             } else {
-                copy($item, $subDestPath);
+                copy($item, $sub_dest_path);
             }
-            if (!is_readable($subDestPath)) {
-                throw new \ErrorException("Could not create $subDestPath");
+            if (!is_readable($sub_dest_path)) {
+                throw new \ErrorException("Could not create {$sub_dest_path}");
             }
         }
-
         return true;
     }
 }

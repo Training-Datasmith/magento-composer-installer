@@ -1,53 +1,43 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  *
  *
  *
  *
  */
+namespace Magento_Hackathon\Composer\Magento;
 
-namespace MagentoHackathon\Composer\Magento;
-
-class ProjectConfig
+class Project_Config
 {
-    protected $libraryPath;
-    protected $libraryPackages;
-
+    protected $library_path;
+    protected $library_packages;
     public function __construct(array $extra)
     {
-        $this->applyDeprecatedRootConfigs($extra);
+        $this->apply_deprecated_root_configs($extra);
         if (isset($extra['magento-project'])) {
-            $this->applyMagentoConfig($extra['magento-project']);
+            $this->apply_magento_config($extra['magento-project']);
         }
     }
-
-    protected function fetchVarFromConfigArray(array $array, $key, $default = null)
+    protected function fetch_var_from_config_array(array $array, $key, $default = null)
     {
         return $array[$key] ?? $default;
     }
-
-    protected function applyDeprecatedRootConfigs($rootConfig)
+    protected function apply_deprecated_root_configs($root_config)
     {
-
     }
-
-    protected function applyMagentoConfig($config)
+    protected function apply_magento_config($config)
     {
-        $this->libraryPath          = $this->fetchVarFromConfigArray($config, 'libraryPath');
-        $this->libraryPackages      = $this->fetchVarFromConfigArray($config, 'libraries');
-
+        $this->library_path = $this->fetch_var_from_config_array($config, 'libraryPath');
+        $this->library_packages = $this->fetch_var_from_config_array($config, 'libraries');
     }
-
-    public function getLibraryPath()
+    public function get_library_path()
     {
-        return $this->libraryPath;
+        return $this->library_path;
     }
-
-    public function getLibraryConfigByPackagename($packagename)
+    public function get_library_config_by_packagename($packagename)
     {
-        return $this->fetchVarFromConfigArray($this->libraryPackages, $packagename);
+        return $this->fetch_var_from_config_array($this->library_packages, $packagename);
     }
-
 }

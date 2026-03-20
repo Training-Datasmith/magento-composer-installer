@@ -1,31 +1,25 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Composer Magento Installer
  */
+namespace Magento_Hackathon\Composer\Magento;
 
-namespace MagentoHackathon\Composer\Magento;
-
-class MapParser extends PathTranslationParser
+class Map_Parser extends Path_Translation_Parser
 {
     protected $_mappings = [];
-
-    public function __construct($mappings, $translations = [], $pathSuffix = '')
+    public function __construct($mappings, $translations = [], $path_suffix = '')
     {
-        parent::__construct($translations, $pathSuffix);
-
-        $this->setMappings($mappings);
+        parent::__construct($translations, $path_suffix);
+        $this->set_mappings($mappings);
     }
-
-    public function setMappings($mappings): void
+    public function set_mappings($mappings): void
     {
-        $this->_mappings = $this->translatePathMappings($mappings);
+        $this->_mappings = $this->translate_path_mappings($mappings);
     }
-
-    public function getMappings()
+    public function get_mappings()
     {
         return $this->_mappings;
     }
-
 }

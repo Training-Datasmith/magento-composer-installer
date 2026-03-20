@@ -1,37 +1,33 @@
 <?php
 
-declare(strict_types=1);
-
-namespace MagentoHackathon\Composer\Magento;
+declare (strict_types=1);
+namespace Magento_Hackathon\Composer\Magento;
 
 /**
  * Parser class supporting translating path mappings according to
  * the composer.json configuration.
  */
-abstract class PathTranslationParser implements Parser
+abstract class Path_Translation_Parser implements Parser
 {
     /**
      * @var array Variants on each prefix that path mappings are checked
      * against.
      */
-    protected $pathPrefixVariants = ['', './'];
-
+    protected $path_prefix_variants = ['', './'];
     /**
      * @var array Path mapping prefixes that need to be translated (i.e. to
      * use a public directory as the web server root).
      */
-    protected $pathPrefixTranslations = [];
-
+    protected $path_prefix_translations = [];
     /**
      * Constructor. Sets the list of path translations to use.
      *
      * @param array $translations Path translations
      */
-    public function __construct($translations, protected $pathSuffix)
+    public function __construct($translations, protected $path_suffix)
     {
-        $this->pathPrefixTranslations = $this->createPrefixVariants($translations);
+        $this->path_prefix_translations = $this->create_prefix_variants($translations);
     }
-
     /**
      * Given an array of path mapping translations, combine them with a list
      * of starting variations. This is so that a translation for 'js' will
@@ -40,18 +36,16 @@ abstract class PathTranslationParser implements Parser
      * @param $translations
      * @return array
      */
-    protected function createPrefixVariants($translations)
+    protected function create_prefix_variants($translations)
     {
-        $newTranslations = [];
+        $new_translations = [];
         foreach ($translations as $key => $value) {
-            foreach ($this->pathPrefixVariants as $variant) {
-                $newTranslations[$variant.$key] = $value;
+            foreach ($this->path_prefix_variants as $variant) {
+                $new_translations[$variant . $key] = $value;
             }
         }
-
-        return $newTranslations;
+        return $new_translations;
     }
-
     /**
      * Given a list of path mappings, check if any of the targets are for
      * directories that have been moved under the public directory. If so,
@@ -64,12 +58,12 @@ abstract class PathTranslationParser implements Parser
      * @param $mappings Array of path mappings
      * @return array Updated path mappings
      */
-    public function translatePathMappings($mappings)
+    public function translate_path_mappings($mappings)
     {
         // each element of $mappings is an array with two elements; first is
         // the source and second is the target
         foreach ($mappings as &$mapping) {
-            foreach ($this->pathPrefixTranslations as $prefix => $translate) {
+            foreach ($this->path_prefix_translations as $prefix => $translate) {
                 if (str_starts_with((string) $mapping[1], (string) $prefix)) {
                     // replace the old prefix with the translated version
                     $mapping[1] = $translate . substr((string) $mapping[1], strlen((string) $prefix));
@@ -79,7 +73,7 @@ abstract class PathTranslationParser implements Parser
                 }
             }
             //Adding path Suffix to the mapping info.
-            $mapping[1] = $this->pathSuffix . $mapping[1];
+            $mapping[1] = $this->path_suffix . $mapping[1];
         }
         return $mappings;
     }

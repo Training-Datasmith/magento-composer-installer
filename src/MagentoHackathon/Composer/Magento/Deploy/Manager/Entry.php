@@ -1,53 +1,47 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  *
  *
  *
  *
  */
-
-namespace MagentoHackathon\Composer\Magento\Deploy\Manager;
+namespace Magento_Hackathon\Composer\Magento\Deploy\Manager;
 
 class Entry
 {
-    protected $packageName;
-
+    protected $package_name;
     /**
      * @var \MagentoHackathon\Composer\Magento\Deploystrategy\DeploystrategyAbstract
      */
-    protected $deployStrategy;
-
+    protected $deploy_strategy;
     /**
      * @param mixed $packageName
      */
-    public function setPackageName($packageName): void
+    public function set_package_name($package_name): void
     {
-        $this->packageName = $packageName;
+        $this->package_name = $package_name;
     }
-
     /**
      * @return mixed
      */
-    public function getPackageName()
+    public function get_package_name()
     {
-        return $this->packageName;
+        return $this->package_name;
     }
-
     /**
      * @param \MagentoHackathon\Composer\Magento\Deploystrategy\DeploystrategyAbstract $deployStrategy
      */
-    public function setDeployStrategy($deployStrategy): void
+    public function set_deploy_strategy($deploy_strategy): void
     {
-        $this->deployStrategy = $deployStrategy;
+        $this->deploy_strategy = $deploy_strategy;
     }
-
     /**
      * @return \MagentoHackathon\Composer\Magento\Deploystrategy\DeploystrategyAbstract
      */
-    public function getDeployStrategy()
+    public function get_deploy_strategy()
     {
-        return $this->deployStrategy;
+        return $this->deploy_strategy;
     }
 }

@@ -1,16 +1,15 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Composer Magento Installer
  */
-
-namespace MagentoHackathon\Composer\Magento\Deploystrategy;
+namespace Magento_Hackathon\Composer\Magento\Deploystrategy;
 
 /**
  * Hardlink deploy strategy
  */
-class Link extends DeploystrategyAbstract
+class Link extends Deploystrategy_Abstract
 {
     /**
      * Creates a hardlink with lots of error-checking
@@ -20,23 +19,21 @@ class Link extends DeploystrategyAbstract
      * @return bool
      * @throws \ErrorException
      */
-    public function createDelegate($source, $dest)
+    public function create_delegate($source, $dest)
     {
-        $sourcePath = $this->getSourceDir() . '/' . $this->removeTrailingSlash($source);
-        $destPath = $this->getDestDir() . '/' . $this->removeTrailingSlash($dest);
-
+        $source_path = $this->get_source_dir() . '/' . $this->remove_trailing_slash($source);
+        $dest_path = $this->get_dest_dir() . '/' . $this->remove_trailing_slash($dest);
         // Create all directories up to one below the target if they don't exist
-        $destDir = dirname($destPath);
-        if (!file_exists($destDir)) {
-            mkdir($destDir, 0777, true);
+        $dest_dir = dirname($dest_path);
+        if (!file_exists($dest_dir)) {
+            mkdir($dest_dir, 0777, true);
         }
-
         // Handle source to dir link,
         // e.g. Namespace_Module.csv => app/locale/de_DE/
-        if (file_exists($destPath) && is_dir($destPath)) {
-            if (basename($sourcePath) === basename($destPath)) {
+        if (file_exists($dest_path) && is_dir($dest_path)) {
+            if (basename($source_path) === basename($dest_path)) {
                 // copy/link each child of $sourcePath into $destPath
-                foreach (new \DirectoryIterator($sourcePath) as $item) {
+                foreach (new \Directory_Iterator($source_path) as $item) {
                     $item = (string) $item;
                     if (!strcmp($item, '.')) {
                         continue;
@@ -44,60 +41,50 @@ class Link extends DeploystrategyAbstract
                     if (!strcmp($item, '..')) {
                         continue;
                     }
-                    $childSource = $source . '/' . $item;
-                    $this->create($childSource, substr($destPath, strlen($this->getDestDir()) + 1));
+                    $child_source = $source . '/' . $item;
+                    $this->create($child_source, substr($dest_path, strlen($this->get_dest_dir()) + 1));
                 }
                 return true;
             }
-            $destPath .= '/' . basename($source);
-            return $this->create($source, substr($destPath, strlen($this->getDestDir()) + 1));
+            $dest_path .= '/' . basename($source);
+            return $this->create($source, substr($dest_path, strlen($this->get_dest_dir()) + 1));
         }
-
         // From now on $destPath can't be a directory, that case is already handled
-
         // If file exists and force is not specified, throw exception unless FORCE is set
-        if (file_exists($destPath)) {
-            if ($this->isForced()) {
-                unlink($destPath);
+        if (file_exists($dest_path)) {
+            if ($this->is_forced()) {
+                unlink($dest_path);
             } else {
-                throw new \ErrorException("Target $dest already exists (set extra.magento-force to override)");
+                throw new \ErrorException("Target {$dest} already exists (set extra.magento-force to override)");
             }
         }
-
         // File to file
-        if (!is_dir($sourcePath)) {
-            if (is_dir($destPath)) {
-                $destPath .= '/' . basename($sourcePath);
+        if (!is_dir($source_path)) {
+            if (is_dir($dest_path)) {
+                $dest_path .= '/' . basename($source_path);
             }
-            return link($sourcePath, $destPath);
+            return link($source_path, $dest_path);
         }
-
         // Copy dir to dir
         // First create destination folder if it doesn't exist
-        if (file_exists($destPath)) {
-            $destPath .= '/' . basename($sourcePath);
+        if (file_exists($dest_path)) {
+            $dest_path .= '/' . basename($source_path);
         }
-        mkdir($destPath, 0777, true);
-
-        $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($sourcePath),
-            \RecursiveIteratorIterator::SELF_FIRST
-        );
-
+        mkdir($dest_path, 0777, true);
+        $iterator = new \Recursive_Iterator_Iterator(new \Recursive_Directory_Iterator($source_path), \Recursive_Iterator_Iterator::SELF_FIRST);
         foreach ($iterator as $item) {
-            $subDestPath = $destPath . '/' . $iterator->getSubPathName();
-            if ($item->isDir()) {
-                if (! file_exists($subDestPath)) {
-                    mkdir($subDestPath, 0777, true);
+            $sub_dest_path = $dest_path . '/' . $iterator->get_sub_path_name();
+            if ($item->is_dir()) {
+                if (!file_exists($sub_dest_path)) {
+                    mkdir($sub_dest_path, 0777, true);
                 }
             } else {
-                link($item, $subDestPath);
+                link($item, $sub_dest_path);
             }
-            if (!is_readable($subDestPath)) {
-                throw new \ErrorException("Could not create $subDestPath");
+            if (!is_readable($sub_dest_path)) {
+                throw new \ErrorException("Could not create {$sub_dest_path}");
             }
         }
-
         return true;
     }
 }

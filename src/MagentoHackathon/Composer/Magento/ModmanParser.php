@@ -1,119 +1,104 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Composer Magento Installer
  */
-
-namespace MagentoHackathon\Composer\Magento;
+namespace Magento_Hackathon\Composer\Magento;
 
 /**
  * Parsers modman files
  */
-class ModmanParser extends PathTranslationParser
+class Modman_Parser extends Path_Translation_Parser
 {
     /**
      * @var string Path to vendor module dir
      */
-    protected $_moduleDir;
-
+    protected $_module_dir;
     /**
      * @var \SplFileObject The modman file
      */
     protected $_file;
-
     /**
      * Constructor
      *
      * @param string $moduleDir
      */
-    public function __construct($moduleDir = null, $translations = [], $pathSuffix = '')
+    public function __construct($module_dir = null, $translations = [], $path_suffix = '')
     {
-        parent::__construct($translations, $pathSuffix);
-
-        $this->setModuleDir($moduleDir);
-        $this->setFile($this->getModmanFile());
+        parent::__construct($translations, $path_suffix);
+        $this->set_module_dir($module_dir);
+        $this->set_file($this->get_modman_file());
     }
-
     /**
      * Sets the module directory where to search for the modman file
      *
      * @param string $moduleDir
      */
-    public function setModuleDir($moduleDir): static
+    public function set_module_dir($module_dir): static
     {
         // Remove trailing slash
-        if ($moduleDir !== null) {
-            $moduleDir = rtrim($moduleDir, '\\/');
+        if ($module_dir !== null) {
+            $module_dir = rtrim($module_dir, '\/');
         }
-
-        $this->_moduleDir = $moduleDir;
+        $this->_module_dir = $module_dir;
         return $this;
     }
-
     /**
      * @return string
      */
-    public function getModuleDir()
+    public function get_module_dir()
     {
-        return $this->_moduleDir;
+        return $this->_module_dir;
     }
-
     /**
      * @param string|SplFileObject $file
      */
-    public function setFile($file): static
+    public function set_file($file): static
     {
         if (is_string($file)) {
-            $file = new \SplFileObject($file);
+            $file = new \Spl_File_Object($file);
         }
         $this->_file = $file;
         return $this;
     }
-
     /**
      * @return \SplFileObject
      */
-    public function getFile()
+    public function get_file()
     {
         return $this->_file;
     }
-
     /**
      * @return string
      */
-    public function getModmanFile(): ?\SplFileObject
+    public function get_modman_file(): ?\Spl_File_Object
     {
-        if ($this->_moduleDir !== null) {
-            return new \SplFileObject($this->_moduleDir . '/modman');
+        if ($this->_module_dir !== null) {
+            return new \Spl_File_Object($this->_module_dir . '/modman');
         }
         return null;
     }
-
     /**
      * @return array
      * @throws \ErrorException
      */
-    public function getMappings()
+    public function get_mappings()
     {
-        $file = $this->getFile();
-
-        if (!$file->isReadable()) {
-            throw new \ErrorException(sprintf('modman file "%s" not readable', $file->getPathname()));
+        $file = $this->get_file();
+        if (!$file->is_readable()) {
+            throw new \ErrorException(sprintf('modman file "%s" not readable', $file->get_pathname()));
         }
-
-        $map = $this->_parseMappings();
-        return $this->translatePathMappings($map);
+        $map = $this->_parse_mappings();
+        return $this->translate_path_mappings($map);
     }
-
     /**
      * @throws \ErrorException
      */
-    protected function _parseMappings(): array
+    protected function _parse_mappings(): array
     {
         $map = [];
         $line = 0;
-
         foreach ($this->_file as $row) {
             $line++;
             $row = trim($row);

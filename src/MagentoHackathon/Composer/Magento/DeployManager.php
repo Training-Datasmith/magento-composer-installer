@@ -1,63 +1,52 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  *
  *
  *
  *
  */
+namespace Magento_Hackathon\Composer\Magento;
 
-namespace MagentoHackathon\Composer\Magento;
-
-use Composer\IO\IOInterface;
-use MagentoHackathon\Composer\Magento\Deploy\Manager\Entry;
-use MagentoHackathon\Composer\Magento\Deploystrategy\Copy;
-
-class DeployManager
+use Composer\IO\Io_Interface;
+use Magento_Hackathon\Composer\Magento\Deploy\Manager\Entry;
+use Magento_Hackathon\Composer\Magento\Deploystrategy\Copy;
+class Deploy_Manager
 {
     /**
      * @var Entry[]
      */
     protected $packages = [];
-
     /**
      * @var IOInterface
      */
     protected $io;
-
     /**
      * an array with package names as key and priorities as value
      *
      * @var array
      */
-    protected $sortPriority = [];
-
+    protected $sort_priority = [];
     /**
      * High priority
      *
      * An array of packages that must have high priority for deployment
      * For packages that need to be deployed before all other packages
      */
-    private array $highPriority = [
-        'magento/magento2-base' => 10,
-    ];
-
-    public function __construct(IOInterface $io)
+    private array $high_priority = ['magento/magento2-base' => 10];
+    public function __construct(Io_Interface $io)
     {
         $this->io = $io;
     }
-
-    public function addPackage(Entry $package): void
+    public function add_package(Entry $package): void
     {
         $this->packages[] = $package;
     }
-
-    public function setSortPriority($priorities): void
+    public function set_sort_priority($priorities): void
     {
-        $this->sortPriority = $priorities;
+        $this->sort_priority = $priorities;
     }
-
     /**
      * Uses the sortPriority Array to sort the packages.
      *
@@ -66,59 +55,49 @@ class DeployManager
      *
      * @return array
      */
-    protected function sortPackages()
+    protected function sort_packages()
     {
-        usort(
-            $this->packages,
-            function (\MagentoHackathon\Composer\Magento\Deploy\Manager\Entry $a, \MagentoHackathon\Composer\Magento\Deploy\Manager\Entry $b): int {
-                $aPriority = $this->getPackagePriority($a);
-                $bPriority = $this->getPackagePriority($b);
-                return $bPriority <=> $aPriority;
-            }
-        );
-
+        usort($this->packages, function (\Magento_Hackathon\Composer\Magento\Deploy\Manager\Entry $a, \Magento_Hackathon\Composer\Magento\Deploy\Manager\Entry $b): int {
+            $a_priority = $this->get_package_priority($a);
+            $b_priority = $this->get_package_priority($b);
+            return $b_priority <=> $a_priority;
+        });
         return $this->packages;
     }
-
-    public function doDeploy(): void
+    public function do_deploy(): void
     {
-        $this->sortPackages();
-
+        $this->sort_packages();
         /** @var Entry $package */
         foreach ($this->packages as $package) {
-            if ($this->io->isDebug()) {
-                $this->io->write('start magento deploy for ' . $package->getPackageName());
+            if ($this->io->is_debug()) {
+                $this->io->write('start magento deploy for ' . $package->get_package_name());
             }
             try {
-                $package->getDeployStrategy()->deploy();
+                $package->get_deploy_strategy()->deploy();
             } catch (\ErrorException $e) {
-                if ($this->io->isDebug()) {
-                    $this->io->write($e->getMessage());
+                if ($this->io->is_debug()) {
+                    $this->io->write($e->get_message());
                 }
             }
         }
     }
-
     /**
      * Determine the priority in which the package should be deployed
      *
      * @return int
      */
-    private function getPackagePriority(Entry $package)
+    private function get_package_priority(Entry $package)
     {
         $result = 100;
-        $maxPriority = max(array_merge($this->sortPriority, [100, 101]));
-
-        if (isset($this->highPriority[$package->getPackageName()])) {
-            $packagePriority = $this->highPriority[$package->getPackageName()];
-            $result = intval($maxPriority) + intval($packagePriority);
-        } elseif (isset($this->sortPriority[$package->getPackageName()])) {
-            $result = $this->sortPriority[$package->getPackageName()];
-        } elseif ($package->getDeployStrategy() instanceof Copy) {
+        $max_priority = max(array_merge($this->sort_priority, [100, 101]));
+        if (isset($this->high_priority[$package->get_package_name()])) {
+            $package_priority = $this->high_priority[$package->get_package_name()];
+            $result = intval($max_priority) + intval($package_priority);
+        } elseif (isset($this->sort_priority[$package->get_package_name()])) {
+            $result = $this->sort_priority[$package->get_package_name()];
+        } elseif ($package->get_deploy_strategy() instanceof Copy) {
             $result = 101;
         }
-
         return $result;
     }
-
 }

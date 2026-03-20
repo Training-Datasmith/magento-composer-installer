@@ -1,18 +1,16 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Composer Magento Installer
  */
-
-namespace MagentoHackathon\Composer\Magento\Deploystrategy;
+namespace Magento_Hackathon\Composer\Magento\Deploystrategy;
 
 use Laminas\Stdlib\Glob;
-
 /**
  * Abstract deploy strategy
  */
-abstract class DeploystrategyAbstract
+abstract class Deploystrategy_Abstract
 {
     /**
      * The path mappings to map project's directories to magento's directory structure
@@ -20,28 +18,24 @@ abstract class DeploystrategyAbstract
      * @var array
      */
     protected $mappings = [];
-
     /**
      * The current mapping of the deployment iteration
      *
      * @var array
      */
-    protected $currentMapping = [];
-
+    protected $current_mapping = [];
     /**
      * The List of entries which files should not get deployed
      *
      * @var array
      */
-    protected $ignoredMappings = [];
-
+    protected $ignored_mappings = [];
     /**
      * If set overrides existing files
      *
      * @var bool
      */
-    protected $isForced = false;
-
+    protected $is_forced = false;
     /**
      * Constructor
      *
@@ -52,14 +46,14 @@ abstract class DeploystrategyAbstract
         /**
          * The module's base directory
          */
-        protected $sourceDir,
+        protected $source_dir,
         /**
          * The magento installation's base directory
          */
-        protected $destDir
-    ) {
+        protected $dest_dir
+    )
+    {
     }
-
     /**
      * Executes the deployment strategy for each mapping
      *
@@ -67,14 +61,13 @@ abstract class DeploystrategyAbstract
      */
     public function deploy()
     {
-        foreach ($this->getMappings() as $data) {
+        foreach ($this->get_mappings() as $data) {
             [$source, $dest] = $data;
-            $this->setCurrentMapping($data);
+            $this->set_current_mapping($data);
             $this->create($source, $dest);
         }
         return $this;
     }
-
     /**
      * Removes the module's files in the given path from the target dir
      *
@@ -82,143 +75,129 @@ abstract class DeploystrategyAbstract
      */
     public function clean()
     {
-        foreach ($this->getMappings() as $data) {
+        foreach ($this->get_mappings() as $data) {
             [$source, $dest] = $data;
             $this->remove($source, $dest);
-            $this->rmEmptyDirsRecursive(dirname((string) $dest), $this->getDestDir());
+            $this->rm_empty_dirs_recursive(dirname((string) $dest), $this->get_dest_dir());
         }
         return $this;
     }
-
     /**
      * Returns the destination dir of the magento module
      *
      * @return string
      */
-    protected function getDestDir()
+    protected function get_dest_dir()
     {
-        return $this->destDir;
+        return $this->dest_dir;
     }
-
     /**
      * Returns the current path of the extension
      *
      * @return mixed
      */
-    protected function getSourceDir()
+    protected function get_source_dir()
     {
-        return $this->sourceDir;
+        return $this->source_dir;
     }
-
     /**
      * If set overrides existing files
      *
      * @return bool
      */
-    public function isForced()
+    public function is_forced()
     {
-        return $this->isForced;
+        return $this->is_forced;
     }
-
     /**
      * Setter for isForced property
      *
      * @param bool $forced
      */
-    public function setIsForced($forced = true): void
+    public function set_is_forced($forced = true): void
     {
-        $this->isForced = (bool) $forced;
+        $this->is_forced = (bool) $forced;
     }
-
     /**
      * Returns the path mappings to map project's directories to magento's directory structure
      *
      * @return array
      */
-    public function getMappings()
+    public function get_mappings()
     {
         return $this->mappings;
     }
-
     /**
      * Sets path mappings to map project's directories to magento's directory structure
      */
-    public function setMappings(array $mappings): void
+    public function set_mappings(array $mappings): void
     {
         $this->mappings = $mappings;
     }
-
     /**
      * Gets the current mapping used on the deployment iteration
      *
      * @return array
      */
-    public function getCurrentMapping()
+    public function get_current_mapping()
     {
-        return $this->currentMapping;
+        return $this->current_mapping;
     }
-
     /**
      * Sets the current mapping used on the deployment iteration
      *
      * @param array $mapping
      */
-    public function setCurrentMapping($mapping): void
+    public function set_current_mapping($mapping): void
     {
-        $this->currentMapping = $mapping;
+        $this->current_mapping = $mapping;
     }
-
     /**
      * sets the current ignored mappings
      *
      * @param $ignoredMappings
      */
-    public function setIgnoredMappings($ignoredMappings): void
+    public function set_ignored_mappings($ignored_mappings): void
     {
-        $this->ignoredMappings = $ignoredMappings;
+        $this->ignored_mappings = $ignored_mappings;
     }
-
     /**
      * gets the current ignored mappings
      *
      * @return array
      */
-    public function getIgnoredMappings()
+    public function get_ignored_mappings()
     {
-        return $this->ignoredMappings;
+        return $this->ignored_mappings;
     }
-
     /**
      * @param string $destination
      *
      * @return bool
      */
-    protected function isDestinationIgnored($destination)
+    protected function is_destination_ignored($destination)
     {
-        $destination = '/'.$destination;
+        $destination = '/' . $destination;
         $destination = str_replace('/./', '/', $destination);
         $destination = str_replace('//', '/', $destination);
-        foreach ($this->ignoredMappings as $ignored) {
+        foreach ($this->ignored_mappings as $ignored) {
             if (str_starts_with((string) $ignored, $destination)) {
                 return true;
             }
         }
         return false;
     }
-
     /**
      * Add a key value pair to mapping
      */
-    public function addMapping($key, $value): void
+    public function add_mapping($key, $value): void
     {
         $this->mappings[] = [$key, $value];
     }
-
-    protected function removeTrailingSlash($path)
+    protected function remove_trailing_slash($path)
     {
-        return rtrim((string) $path, ' \\/');
+        return rtrim((string) $path, ' \/');
     }
-
     /**
      * Normalize mapping parameters using a glob wildcard.
      *
@@ -230,64 +209,54 @@ abstract class DeploystrategyAbstract
      */
     public function create($source, string $dest)
     {
-        if ($this->isDestinationIgnored($dest)) {
+        if ($this->is_destination_ignored($dest)) {
             return;
         }
-
-        $sourcePath = $this->getSourceDir() . DIRECTORY_SEPARATOR
-            . ltrim((string) $this->removeTrailingSlash($source), DIRECTORY_SEPARATOR);
-        $destPath = $this->getDestDir() . DIRECTORY_SEPARATOR . $dest;
-
+        $source_path = $this->get_source_dir() . DIRECTORY_SEPARATOR . ltrim((string) $this->remove_trailing_slash($source), DIRECTORY_SEPARATOR);
+        $dest_path = $this->get_dest_dir() . DIRECTORY_SEPARATOR . $dest;
         /* List of possible cases, keep around for now, might come in handy again
-
-        Assume app/etc exists, app/etc/a does not exist unless specified differently
-
-        dir app/etc/a/ --> link app/etc/a to dir
-        dir app/etc/a  --> link app/etc/a to dir
-        dir app/etc/   --> link app/etc/dir to dir
-        dir app/etc    --> link app/etc/dir to dir
-
-        dir/* app/etc     --> for each dir/$file create a target link in app/etc
-        dir/* app/etc/    --> for each dir/$file create a target link in app/etc
-        dir/* app/etc/a   --> for each dir/$file create a target link in app/etc/a
-        dir/* app/etc/a/  --> for each dir/$file create a target link in app/etc/a
-
-        file app/etc    --> link app/etc/file to file
-        file app/etc/   --> link app/etc/file to file
-        file app/etc/a  --> link app/etc/a to file
-        file app/etc/a  --> if app/etc/a is a file throw exception unless force is set, in that case rm and see above
-        file app/etc/a/ --> link app/etc/a/file to file regardless if app/etc/a exists or not
-
-        */
-
+        
+                Assume app/etc exists, app/etc/a does not exist unless specified differently
+        
+                dir app/etc/a/ --> link app/etc/a to dir
+                dir app/etc/a  --> link app/etc/a to dir
+                dir app/etc/   --> link app/etc/dir to dir
+                dir app/etc    --> link app/etc/dir to dir
+        
+                dir/* app/etc     --> for each dir/$file create a target link in app/etc
+                dir/* app/etc/    --> for each dir/$file create a target link in app/etc
+                dir/* app/etc/a   --> for each dir/$file create a target link in app/etc/a
+                dir/* app/etc/a/  --> for each dir/$file create a target link in app/etc/a
+        
+                file app/etc    --> link app/etc/file to file
+                file app/etc/   --> link app/etc/file to file
+                file app/etc/a  --> link app/etc/a to file
+                file app/etc/a  --> if app/etc/a is a file throw exception unless force is set, in that case rm and see above
+                file app/etc/a/ --> link app/etc/a/file to file regardless if app/etc/a exists or not
+        
+                */
         // Create target directory if it ends with a directory separator
-        if (!file_exists($destPath)
-            && in_array(substr($destPath, -1), ['/', '\\'])
-            && !is_dir($sourcePath)
-        ) {
-            mkdir($destPath, 0755, true);
-            $destPath = $this->removeTrailingSlash($destPath);
+        if (!file_exists($dest_path) && in_array(substr($dest_path, -1), ['/', '\\']) && !is_dir($source_path)) {
+            mkdir($dest_path, 0755, true);
+            $dest_path = $this->remove_trailing_slash($dest_path);
         }
-
         // If source doesn't exist, check if it's a glob expression, otherwise we have nothing we can do
-        if (!file_exists($sourcePath)) {
+        if (!file_exists($source_path)) {
             // Handle globing
-            $matches = Glob::glob($sourcePath);
+            $matches = Glob::glob($source_path);
             if ($matches) {
                 foreach ($matches as $match) {
-                    $newDest = substr($destPath . '/' . basename($match), strlen($this->getDestDir()));
-                    $newDest = ltrim($newDest, ' \\/');
-                    $this->create(substr($match, strlen((string) $this->getSourceDir()) + 1), $newDest);
+                    $new_dest = substr($dest_path . '/' . basename($match), strlen($this->get_dest_dir()));
+                    $new_dest = ltrim($new_dest, ' \/');
+                    $this->create(substr($match, strlen((string) $this->get_source_dir()) + 1), $new_dest);
                 }
                 return true;
             }
-
             // Source file isn't a valid file or glob
-            throw new \ErrorException("Source $sourcePath does not exist");
+            throw new \ErrorException("Source {$source_path} does not exist");
         }
-        return $this->createDelegate($source, $dest);
+        return $this->create_delegate($source, $dest);
     }
-
     /**
      * Remove (unlink) the destination file
      *
@@ -296,73 +265,63 @@ abstract class DeploystrategyAbstract
      */
     public function remove($source, string $dest): void
     {
-        if ($this->isDestinationIgnored($dest)) {
+        if ($this->is_destination_ignored($dest)) {
             return;
         }
-
-        $sourcePath = $this->getSourceDir() . '/' . $this->removeTrailingSlash($source);
-        $destPath = $this->getDestDir() . '/' . $dest;
+        $source_path = $this->get_source_dir() . '/' . $this->remove_trailing_slash($source);
+        $dest_path = $this->get_dest_dir() . '/' . $dest;
         // If source doesn't exist, check if it's a glob expression, otherwise we have nothing we can do
-        if (!file_exists($sourcePath)) {
-            $this->removeContentOfCategory($sourcePath, $destPath);
+        if (!file_exists($source_path)) {
+            $this->remove_content_of_category($source_path, $dest_path);
             return;
         }
-
         // If source doesn't exist, check if it's a glob expression, otherwise we have nothing we can do
-        if (is_dir($sourcePath)) {
-            $this->removeContentOfCategory($sourcePath . '/*', $destPath);
-            @rmdir($destPath);
+        if (is_dir($source_path)) {
+            $this->remove_content_of_category($source_path . '/*', $dest_path);
+            @rmdir($dest_path);
             return;
         }
-
         // MP Avoid removing whole folders in case the modman file is not 100% well-written
         // e.g. app/etc/modules/Testmodule.xml  app/etc/modules/ installs correctly, but would otherwise delete the whole app/etc/modules folder!
-        if (basename($sourcePath) !== basename($destPath)) {
-            $destPath .= '/' . basename($source);
+        if (basename($source_path) !== basename($dest_path)) {
+            $dest_path .= '/' . basename($source);
         }
-        self::rmdirRecursive($destPath);
+        self::rmdir_recursive($dest_path);
     }
-
     /**
      * Search and remove content of category
      *
      * @param string $sourcePath
      * @throws \ErrorException
      */
-    protected function removeContentOfCategory($sourcePath, string $destPath)
+    protected function remove_content_of_category($source_path, string $dest_path)
     {
-        $sourcePath = preg_replace('#/\*$#', '/{,.}*', $sourcePath);
-        $matches = Glob::glob($sourcePath, Glob::GLOB_BRACE);
+        $source_path = preg_replace('#/\*$#', '/{,.}*', $source_path);
+        $matches = Glob::glob($source_path, Glob::GLOB_BRACE);
         if ($matches) {
             foreach ($matches as $match) {
-                if (preg_match("#/\.{1,2}$#", $match)) {
+                if (preg_match("#/\\.{1,2}\$#", $match)) {
                     continue;
                 }
-                $newDest = substr($destPath . '/' . basename($match), strlen($this->getDestDir()));
-                $newDest = ltrim($newDest, ' \\/');
-                $this->remove(substr($match, strlen((string) $this->getSourceDir()) + 1), $newDest);
+                $new_dest = substr($dest_path . '/' . basename($match), strlen($this->get_dest_dir()));
+                $new_dest = ltrim($new_dest, ' \/');
+                $this->remove(substr($match, strlen((string) $this->get_source_dir()) + 1), $new_dest);
             }
             return;
         }
-
         // Source file isn't a valid file or glob
-        throw new \ErrorException("Source $sourcePath does not exist");
+        throw new \ErrorException("Source {$source_path} does not exist");
     }
-
     /**
      * Remove an empty directory branch up to $stopDir, or stop at the first non-empty parent.
      *
      * @param string $stopDir
      */
-    public function rmEmptyDirsRecursive(string $dir, $stopDir = null): void
+    public function rm_empty_dirs_recursive(string $dir, $stop_dir = null): void
     {
-        $absoluteDir = $this->getDestDir() . '/' . $dir;
-        if (is_dir($absoluteDir)) {
-            $iterator = new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($absoluteDir),
-                \RecursiveIteratorIterator::CHILD_FIRST
-            );
-
+        $absolute_dir = $this->get_dest_dir() . '/' . $dir;
+        if (is_dir($absolute_dir)) {
+            $iterator = new \Recursive_Iterator_Iterator(new \Recursive_Directory_Iterator($absolute_dir), \Recursive_Iterator_Iterator::CHILD_FIRST);
             foreach ($iterator as $item) {
                 $path = (string) $item;
                 if (!strcmp($path, '.')) {
@@ -378,35 +337,32 @@ abstract class DeploystrategyAbstract
             // that cause Windows to block the directory and not remove it until
             // the iterator will be destroyed.
             unset($iterator);
-
             // The specified directory is empty
-            if (@rmdir($absoluteDir)) {
+            if (@rmdir($absolute_dir)) {
                 // If the parent directory doesn't match the $stopDir and it's empty, remove it, too
-                $parentDir = dirname($dir);
-                $absoluteParentDir = $this->getDestDir() . '/' . $parentDir;
-                if (! isset($stopDir) || (realpath($stopDir) !== realpath($absoluteParentDir))) {
+                $parent_dir = dirname($dir);
+                $absolute_parent_dir = $this->get_dest_dir() . '/' . $parent_dir;
+                if (!isset($stop_dir) || realpath($stop_dir) !== realpath($absolute_parent_dir)) {
                     // Remove the parent directory if it is empty
-                    $this->rmEmptyDirsRecursive($parentDir);
+                    $this->rm_empty_dirs_recursive($parent_dir);
                 }
             }
         }
     }
-
     /**
      * Recursively removes the specified directory or file
      *
      * @param $dir
      */
-    public static function rmdirRecursive($dir): void
+    public static function rmdir_recursive($dir): void
     {
         $fs = new \Composer\Util\Filesystem();
         if (is_dir($dir)) {
-            $result = $fs->removeDirectory($dir);
+            $result = $fs->remove_directory($dir);
         } else {
             @unlink($dir);
         }
     }
-
     /**
      * Create the module's files in the given destination.
      *
@@ -416,6 +372,5 @@ abstract class DeploystrategyAbstract
      * @param string $dest
      * @return bool
      */
-    abstract protected function createDelegate($source, $dest);
-
+    abstract protected function create_delegate($source, $dest);
 }

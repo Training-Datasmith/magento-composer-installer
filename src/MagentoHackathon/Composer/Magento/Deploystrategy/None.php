@@ -1,16 +1,15 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Composer Magento Installer
  */
-
-namespace MagentoHackathon\Composer\Magento\Deploystrategy;
+namespace Magento_Hackathon\Composer\Magento\Deploystrategy;
 
 /**
  * None deploy strategy
  */
-class None extends DeploystrategyAbstract
+class None extends Deploystrategy_Abstract
 {
     /**
      * Deploy nothing
@@ -18,11 +17,10 @@ class None extends DeploystrategyAbstract
      * @param string $source
      * @param string $dest
      */
-    public function createDelegate($source, $dest): bool
+    public function create_delegate($source, $dest): bool
     {
         return true;
     }
-
     /**
      * Deploy nothing
      *
